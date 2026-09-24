@@ -32,8 +32,12 @@ MIN_WIN = 500     # уже этого Edge окно не делает: прос�
 
 
 def shot(width, dest, name):
+    if os.path.exists(dest):
+        os.remove(dest)     # иначе ожидание ниже примет старый снимок за новый
     with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
         subprocess.run([EDGE, "--headless=new", "--disable-gpu", "--hide-scrollbars",
+                        # анимации в headless не доигрывают — снимаем конечное состояние
+                        "--force-prefers-reduced-motion",
                         "--window-size=%d,%d" % (width, TALL),
                         "--virtual-time-budget=6000",
                         "--screenshot=" + dest,
