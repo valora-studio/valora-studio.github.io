@@ -37,14 +37,13 @@
     h.classList.add('split');
     h.setAttribute('aria-label', words.join(' '));
   });
-  $$('.facts div').forEach(function (d, i) { d.style.setProperty('--i', i); });
 
   // линейки, которые прочерчиваются
   $$('.rows, .faq, .steps, .compare, .price, .contacts').forEach(function (el) { el.classList.add('draw'); });
 
   if (reduce) {
     // без движения — сразу конечное состояние каждой сцены
-    $$('.split, .draw, .facts').forEach(function (el) { el.classList.add('is-in'); });
+    $$('.split, .draw').forEach(function (el) { el.classList.add('is-in'); });
     document.body.classList.add('is-loaded');
     $$('.dots').forEach(function (d) {
       var first = d.getAttribute('data-keep') === 'first';
@@ -54,10 +53,6 @@
       });
       var cap = d.nextElementSibling && d.nextElementSibling.querySelector('b');
       if (cap) cap.textContent = cap.getAttribute('data-to');
-    });
-    $$('.days').forEach(function (d) {
-      d.classList.add('is-past-half');
-      d.querySelector('.days__n b').textContent = '90';
     });
     return;
   }
@@ -75,32 +70,78 @@
     entries.forEach(function (e) {
       if (!e.isIntersecting) return;
       e.target.classList.add('is-in');
-      if (e.target.classList.contains('facts')) countFacts(e.target);
       io.unobserve(e.target);
     });
   }, { rootMargin: '0px 0px -12% 0px' });
-  $$('.draw, .facts').forEach(function (el) { io.observe(el); });
+  $$('.draw').forEach(function (el) { io.observe(el); });
 
-  // цифры в фактах отсчитываются до своего значения
-  function countFacts(box) {
-    $$('b', box).forEach(function (b, i) {
-      var txt = b.textContent;
-      if (/[–-]/.test(txt)) return;
-      var m = txt.match(/^(\d(?:[\d  ]*\d)?)(.*)$/);
-      if (!m) return;
-      var target = parseInt(m[1].replace(/\D/g, ''), 10), tail = m[2];
-      var t0 = null, dur = 1400, delay = 650 + i * 140;
-      b.textContent = '0' + tail;
-      setTimeout(function () {
-        requestAnimationFrame(function step(t) {
-          if (t0 === null) t0 = t;
-          var k = ease(clamp((t - t0) / dur));
-          b.textContent = fmt(target * k) + tail;
-          if (k < 1) requestAnimationFrame(step);
-        });
-      }, delay);
+
+  // ---------- схема на первом экране: люди идут из каналов к вам ----------
+  var FROM = { 'Авито': 'из Авито', 'Telegram': 'из Telegram', 'ВКонтакте': 'из ВКонтакте', 'Директ': 'из Директа',
+               'Рассылки': 'из рассылки', 'Сообщества': 'из сообщества', 'Партнёры': 'от партнёров', 'Видео': 'из видео' };
+  var DID = { 'Страница': 'Оставили заявку', 'Гид': 'Скачали гид', 'Бот': 'Написали боту' };
+  $$('.orbit').forEach(function (box) {
+    var svg = box.querySelector('svg'), layer = svg.querySelector('.o-dots');
+    var NS = 'http://www.w3.org/2000/svg';
+    var pulse = svg.querySelector('.o-pulse');
+    var count = box.querySelector('.o-count'), countT = box.querySelector('.o-count-t');
+    var cardB = box.querySelector('.o-card--b'), ev = box.querySelector('.o-event'), from = box.querySelector('.o-from');
+    var chans = $$('.o-ch', svg), hubs = {};
+    $$('.o-hub', svg).forEach(function (h) { hubs[h.getAttribute('data-hub')] = h; });
+    var routes = $$('.o-path', svg).map(function (p, i) {
+      var d = p.getAttribute('d'), tmp = document.createElementNS(NS, 'path');
+      tmp.setAttribute('d', d.split(' L')[0]);            // до узла — чтобы знать, где он на пути
+      return { el: p, len: p.getTotalLength(), hubAt: tmp.getTotalLength(),
+               ch: p.getAttribute('data-ch'), hub: p.getAttribute('data-hub'), node: chans[i] };
     });
-  }
+    var dots = [], arrived = 0, visible = true, nextAt = 0, last = 0;
+
+    function flash(el, ms) { el.classList.add('is-hit'); setTimeout(function () { el.classList.remove('is-hit'); }, ms); }
+    function arrive(rt) {
+      arrived++;
+      var n10 = arrived % 10, n100 = arrived % 100;
+      countT.textContent = (n10 === 1 && n100 !== 11 ? 'контакт' :
+        n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14) ? 'контакта' : 'контактов') + ', пока вы читаете';
+      count.textContent = String(arrived);
+      pulse.classList.remove('go'); void pulse.getBBox(); pulse.classList.add('go');
+      ev.textContent = DID[rt.hub]; from.textContent = 'пришли ' + FROM[rt.ch];
+      cardB.classList.remove('is-new'); void cardB.offsetWidth; cardB.classList.add('is-new');
+    }
+    function spawn(now) {
+      var rt = routes[Math.floor(Math.random() * routes.length)];
+      var c = document.createElementNS(NS, 'circle');
+      c.setAttribute('r', '5'); c.setAttribute('class', 'o-dot');
+      layer.appendChild(c);
+      flash(rt.node, 500);
+      dots.push({ c: c, rt: rt, t0: now, dur: 2600 + Math.random() * 900, hit: false });
+    }
+    function inOut(t) { return t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
+
+    new IntersectionObserver(function (e) { visible = e[0].isIntersecting; }).observe(box);
+
+    requestAnimationFrame(function loop(now) {
+      if (visible && !document.hidden) {
+        if (!nextAt) nextAt = now + 1700;                  // первая точка — когда схема собралась
+        if (now >= nextAt) { spawn(now); nextAt = now + 700 + Math.random() * 900; }
+        dots = dots.filter(function (d) {
+          var k = (now - d.t0) / d.dur;
+          if (k >= 1) { layer.removeChild(d.c); arrive(d.rt); return false; }
+          var L = inOut(k) * d.rt.len, p = d.rt.el.getPointAtLength(L);
+          d.c.setAttribute('cx', p.x.toFixed(1)); d.c.setAttribute('cy', p.y.toFixed(1));
+          d.c.style.opacity = Math.min(1, k * 8).toFixed(2);
+          if (!d.hit && L >= d.rt.hubAt) { d.hit = true; flash(hubs[d.rt.hub], 450); }
+          return true;
+        });
+      } else {
+        // схему не видно — ставим на паузу: сдвигаем время у точек в пути
+        var dt = now - (last || now);
+        dots.forEach(function (d) { d.t0 += dt; });
+        if (nextAt) nextAt += dt;
+      }
+      last = now;
+      requestAnimationFrame(loop);
+    });
+  });
 
   // ---------- сцены, привязанные к прокрутке ----------
   var scenes = [];
@@ -133,18 +174,6 @@
         });
         if (g.cap) g.cap.textContent = String(10 - gone);
       });
-    });
-  });
-
-  // 2. 90 дней: шкала заполняется, отметка 45 загорается.
-  $$('.days').forEach(function (box) {
-    var fill = box.querySelector('.days__bar'), n = box.querySelector('.days__n b');
-    var band = box.closest('.band') || box;
-    scenes.push(function () {
-      var p = progress(band, .9, .45);
-      fill.style.setProperty('--p', p.toFixed(4));
-      n.textContent = Math.round(p * 90);
-      box.classList.toggle('is-past-half', p >= .5);
     });
   });
 
