@@ -326,6 +326,67 @@ def orbit():
     </div>""".format(svg=svg)
 
 
+# Переписка с демо-ботом «Опоры» на главной. Реплики — из bot-psy/content.py,
+# сокращённые до двух вопросов. Без JS видна целиком, со скриптом проигрывается.
+CHAT_SCRIPT = [
+    ("bot", "Здравствуйте. Это бот практики «Опора». Задам пару коротких вопросов и отдам гид «Почему терапия не приносит облегчения»."),
+    ("keys", ["Хорошо, начнём"], 0),
+    ("bot", "С чем сейчас сложнее всего?"),
+    ("keys", ["Тревога, бессонница", "Выгорание, апатия", "Отношения, границы"], 0),
+    ("bot", "Как давно это длится?"),
+    ("keys", ["Несколько недель", "Несколько месяцев", "Больше года"], 1),
+    ("bot", "Спасибо. Держите гид — там разобрано, почему так бывает и что с этим делать."),
+    ("file", "Почему терапия не приносит облегчения", "PDF, 15 страниц"),
+    ("bot", "Если захотите разобрать это вживую — запишитесь на встречу-знакомство."),
+    ("keys", ["Записаться", "Пока почитаю"], 0),
+]
+
+
+def chat():
+    feed = []
+    for item in CHAT_SCRIPT:
+        kind = item[0]
+        if kind == "bot":
+            feed.append('<div class="msg msg--bot">%s</div>' % item[1])
+        elif kind == "file":
+            feed.append('<div class="msg msg--bot msg--file"><i>PDF</i><div><b>%s</b><span>%s</span></div></div>'
+                        % (item[1], item[2]))
+        else:
+            keys, pick = item[1], item[2]
+            feed.append('<div class="keys">%s</div>' % "".join(
+                '<span%s>%s</span>' % (' data-pick' if k == pick else "", t) for k, t in enumerate(keys)))
+            feed.append('<div class="msg msg--me">%s</div>' % keys[pick])
+    return """<section class="band band--tone demo">
+  <div class="wrap demo__grid">
+    <div>
+      <h2>Так это видит ваш клиент</h2>
+      <p class="lead">Человек пришёл с рекламы, ответил на пару вопросов кнопками — и через минуту у него в руках гид. А у вас в Telegram — заявка с его ответами: ещё до звонка понятно, с чем он придёт.</p>
+      <div class="rows demo__rows">
+        <div class="row"><p class="label">Сразу</p><div><p>Отвечает в ту же секунду — ночью и в выходные тоже. Человек не ждёт и не уходит к соседям.</p></div></div>
+        <div class="row"><p class="label">По делу</p><div><p>Спрашивает то, что вам нужно знать до разговора, — кнопками, без анкет.</p></div></div>
+        <div class="row"><p class="label">Вам</p><div><p>Контакт и ответы приходят в ваш Telegram. Через нас заявки не идут.</p></div></div>
+      </div>
+      <div class="actions"><a class="btn btn--ghost" href="works.html">Посмотреть работы</a></div>
+    </div>
+    <div class="demo__side">
+      <div class="chat" aria-label="Пример переписки клиента с ботом">
+        <div class="chat__head"><i>О</i><div><b>Опора</b><span>бот практики</span></div></div>
+        <div class="chat__feed">
+          {feed}
+        </div>
+      </div>
+      <div class="lead-card">
+        <p class="label">Заявка в ваш Telegram</p>
+        <b>Тревога, бессонница — несколько месяцев</b>
+        <span>Скачал гид, хочет на встречу-знакомство</span>
+      </div>
+      <button class="chat__replay" type="button" hidden>Показать ещё раз</button>
+      <p class="demo__cap">Демо-бот для ниши «психология». Под вашу нишу — свои вопросы и свой гид.</p>
+    </div>
+  </div>
+</section>""".format(feed="\n          ".join(feed))
+
+
 def p_index():
     return page("index",
         "Valora — посадочная страница, лид-магнит и чат-бот под вашу нишу",
@@ -404,30 +465,9 @@ def p_index():
   </div>
 </section>
 
-<section class="band">
-  <div class="wrap">
-    <div class="head">
-      <h2>Чего мы не делаем</h2>
-      <p class="lead">Сразу, чтобы потом не было разочарований.</p>
-    </div>
-    <div class="rows">
-      <div class="row">
-        <p class="label">Трафик</p>
-        <div><p>Рекламу не закупаем и кабинеты не ведём. Бюджет вы платите площадкам и подрядчикам напрямую — через нас эти деньги не проходят.</p></div>
-      </div>
-      <div class="row">
-        <p class="label">Заявки</p>
-        <div><p>Не пропускаем через себя. Страница и бот работают на ваших ресурсах, контакты клиентов приходят только вам.</p></div>
-      </div>
-      <div class="row">
-        <p class="label">Гарантии</p>
-        <div><p>Не обещаем конкретное число заявок и продаж — это зависит от продукта, цены и того, как вы отвечаете клиентам. Обещаем то, что записано в оферте: состав работ и сроки.</p></div>
-      </div>
-    </div>
-  </div>
-</section>
+{chat}
 
-{cta}""".format(tg=tg_url(), orbit=orbit(), cta=cta(
+{cta}""".format(tg=tg_url(), orbit=orbit(), chat=chat(), cta=cta(
             "Расскажите, чем вы занимаетесь",
             "За один разговор поймём, подходит ли вашей нише такая связка, и назовём каналы, с которых стоит начать. Если не подходит — так и скажем.")))
 

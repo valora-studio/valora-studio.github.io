@@ -41,6 +41,54 @@
   // линейки, которые прочерчиваются
   $$('.rows, .faq, .steps, .compare, .price, .contacts').forEach(function (el) { el.classList.add('draw'); });
 
+
+  // ---------- переписка с ботом: проигрывается, когда блок в кадре ----------
+  $$('.demo').forEach(function (sec) {
+    var feed = sec.querySelector('.chat__feed'), card = sec.querySelector('.lead-card');
+    var replay = sec.querySelector('.chat__replay');
+    var items = Array.prototype.slice.call(feed.children);   // сценарий = статичная разметка
+    var timers = [];
+    function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+    function down() { feed.scrollTop = feed.scrollHeight; }
+    function add(el) { feed.appendChild(el); down(); }
+
+    function play() {
+      timers.forEach(clearTimeout); timers = [];
+      feed.innerHTML = ''; card.classList.remove('is-in'); replay.hidden = true;
+      sec.classList.add('is-playing');
+      var t = 400;
+      items.forEach(function (el, i) {
+        var node = el.cloneNode(true);
+        if (el.classList.contains('msg--bot')) {
+          var typing = document.createElement('div');
+          typing.className = 'typing'; typing.innerHTML = '<i></i><i></i><i></i>';
+          later(function () { add(typing); }, t);
+          t += 550 + Math.min(750, el.textContent.length * 6);
+          later(function () { feed.removeChild(typing); add(node); }, t);
+          t += 500;
+        } else if (el.classList.contains('keys')) {
+          later(function () { add(node); }, t);
+          t += 950;
+          later(function () { var k = node.querySelector('[data-pick]'); if (k) k.classList.add('is-picked'); }, t);
+          t += 420;
+          later(function () { feed.removeChild(node); }, t);  // кнопки уходят, остаётся ответ
+        } else {                                               // ответ клиента
+          later(function () { add(node); }, t);
+          t += 550;
+        }
+      });
+      later(function () { card.classList.add('is-in'); }, t + 300);
+      later(function () { replay.hidden = false; }, t + 1400);
+    }
+
+    if (reduce) { down(); return; }          // без движения — переписка лежит целиком, видно конец
+    var started = false;
+    new IntersectionObserver(function (e, obs) {
+      if (e[0].isIntersecting && !started) { started = true; play(); obs.disconnect(); }
+    }, { threshold: .35 }).observe(sec.querySelector('.chat'));
+    replay.addEventListener('click', play);
+  });
+
   if (reduce) {
     // без движения — сразу конечное состояние каждой сцены
     $$('.split, .draw').forEach(function (el) { el.classList.add('is-in'); });
