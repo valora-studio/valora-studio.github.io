@@ -342,7 +342,8 @@ CHAT_SCRIPT = [
 ]
 
 
-def chat():
+def chat_side():
+    """Окно переписки + карточка заявки. Стоит на главной и на «Работах»."""
     feed = []
     for item in CHAT_SCRIPT:
         kind = item[0]
@@ -356,19 +357,7 @@ def chat():
             feed.append('<div class="keys">%s</div>' % "".join(
                 '<span%s>%s</span>' % (' data-pick' if k == pick else "", t) for k, t in enumerate(keys)))
             feed.append('<div class="msg msg--me">%s</div>' % keys[pick])
-    return """<section class="band band--tone demo">
-  <div class="wrap demo__grid">
-    <div>
-      <h2>Так это видит ваш клиент</h2>
-      <p class="lead">Человек пришёл с рекламы, ответил на пару вопросов кнопками — и через минуту у него в руках гид. А у вас в Telegram — заявка с его ответами: ещё до звонка понятно, с чем он придёт.</p>
-      <div class="rows demo__rows">
-        <div class="row"><p class="label">Сразу</p><div><p>Отвечает в ту же секунду — ночью и в выходные тоже. Человек не ждёт и не уходит к соседям.</p></div></div>
-        <div class="row"><p class="label">По делу</p><div><p>Спрашивает то, что вам нужно знать до разговора, — кнопками, без анкет.</p></div></div>
-        <div class="row"><p class="label">Вам</p><div><p>Контакт и ответы приходят в ваш Telegram. Через нас заявки не идут.</p></div></div>
-      </div>
-      <div class="actions"><a class="btn btn--ghost" href="works.html">Посмотреть работы</a></div>
-    </div>
-    <div class="demo__side">
+    return """<div class="demo__side">
       <div class="chat" aria-label="Пример переписки клиента с ботом">
         <div class="chat__head"><i>О</i><div><b>Опора</b><span>бот практики</span></div></div>
         <div class="chat__feed">
@@ -382,9 +371,25 @@ def chat():
       </div>
       <button class="chat__replay" type="button" hidden>Показать ещё раз</button>
       <p class="demo__cap">Демо-бот для ниши «психология». Под вашу нишу — свои вопросы и свой гид.</p>
+    </div>""".format(feed="\n          ".join(feed))
+
+
+def chat():
+    return """<section class="band band--tone demo">
+  <div class="wrap demo__grid">
+    <div>
+      <h2>Так это видит ваш клиент</h2>
+      <p class="lead">Человек пришёл с рекламы, ответил на пару вопросов кнопками — и через минуту у него в руках гид. А у вас в Telegram — заявка с его ответами: ещё до звонка понятно, с чем он придёт.</p>
+      <div class="rows demo__rows">
+        <div class="row"><p class="label">Сразу</p><div><p>Отвечает в ту же секунду — ночью и в выходные тоже. Человек не ждёт и не уходит к соседям.</p></div></div>
+        <div class="row"><p class="label">По делу</p><div><p>Спрашивает то, что вам нужно знать до разговора, — кнопками, без анкет.</p></div></div>
+        <div class="row"><p class="label">Вам</p><div><p>Контакт и ответы приходят в ваш Telegram. Через нас заявки не идут.</p></div></div>
+      </div>
+      <div class="actions"><a class="btn btn--ghost" href="works.html">Посмотреть работы</a></div>
     </div>
+    {side}
   </div>
-</section>""".format(feed="\n          ".join(feed))
+</section>""".format(side=chat_side())
 
 
 def p_index():
@@ -657,19 +662,18 @@ def p_works():
         <p>Психология, недвижимость, онлайн-школа — по 15 страниц, формат под экран телефона. Каждый отвечает на вопрос, который человек задаёт себе до покупки, и только потом рассказывает о продукте.</p>
       </div>
     </article>
-    <article class="work">
+    <article class="work demo">
       <div>
         <p class="label">Чат-бот</p>
         <h3>Бот «Опоры» в Telegram</h3>
-        <p>Отдаёт гид сразу после запроса, отвечает на частые вопросы и передаёт контакт специалисту. Можно написать ему самому и посмотреть, как это выглядит со стороны клиента.</p>
-        <div class="actions"><a class="btn btn--ghost" href="https://t.me/Valora_tripwire_bot" target="_blank" rel="noopener">Открыть бота</a></div>
+        <p>Отдаёт гид сразу после запроса, отвечает на частые вопросы и передаёт контакт специалисту. Рядом — как это выглядит со стороны клиента и что в этот момент приходит владельцу практики.</p>
       </div>
-      <div></div>
+      {chat}
     </article>
   </div>
 </section>
 
-{cta}""".format(cta=cta(
+{cta}""".format(chat=chat_side(), cta=cta(
             "Хотите такое же для своей ниши?",
             "Напишите, чем занимаетесь, — покажем, как связка выглядела бы у вас.")))
 
