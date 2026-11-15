@@ -85,6 +85,7 @@
     scene.frames = new Array(n).fill(null);
     scene.last = -1;
     const queue = loadOrder(n);
+    const retried = new Set();
     let active = 0;
     const next = () => {
       if (scene.variant !== variant) return;
@@ -94,7 +95,8 @@
         img.decoding = 'async';
         active++;
         img.onload = () => { scene.frames[i] = img; active--; if (scene.last === -1) draw(scene, true); next(); };
-        img.onerror = () => { active--; next(); };
+        // временный сбой CDN: один повтор позже, иначе сцена возьмёт ближайший загруженный кадр
+        img.onerror = () => { active--; if (!retried.has(i)) { retried.add(i); setTimeout(() => { queue.push(i); next(); }, 1500); } next(); };
         img.src = `frames/${scene.name}/${variant}/${String(i + 1).padStart(4, '0')}.webp`;
       }
     };
