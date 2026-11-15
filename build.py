@@ -192,7 +192,7 @@ def page(slug, title, desc, body, doc=False):
 <meta property="og:title" content="{t}">
 <meta property="og:description" content="{d}">
 <meta property="og:url" content="{url}">
-<meta property="og:image" content="{base}/img/og.jpg">
+<meta property="og:image" content="{base}/img/og-dark.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
