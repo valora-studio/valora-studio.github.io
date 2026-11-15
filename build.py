@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
-"""Сборка сайта Valora: общий каркас + содержимое страниц → *.html рядом.
+"""Сборка сайта Valora — маркетингового агентства: общий каркас + содержимое страниц → *.html рядом.
 
 Шапка, подвал и реквизиты живут здесь в одном месте, поэтому контакт
 меняется одной правкой в SITE, а не в девяти файлах.
 
     PYTHONIOENCODING=utf-8 python build.py
 
-Деньги и условия взяты из договора (dogovor/build_dogovor.py, п. 3.1, 6.1
-и Приложение № 1). Если договор поменялся — сначала он, потом сайт.
+Это второй сайт Valora. Первый (../site/) продаёт «обёртку» — посадочную,
+лид-магнит и бота — и работает от самозанятого. Здесь исполнитель — ИП,
+услуги — агентские: аудит, страница, настройка и ведение рекламы, контент.
+Условия «возврат 20 000 ₽» и «10 % чистой прибыли» отсюда убраны намеренно:
+они принадлежат старому продукту.
 """
 import os
 import re
@@ -18,22 +21,29 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SITE = {
     # Адрес сайта без слэша в конце — для og:url и og:image.
     "base": "https://valora-studio.github.io",
-    "fio": "Андрюшин Андрей Вячеславович",
-    "fio_short": "Андрюшин А. В.",
+    "org": "ИП Андрюшин Андрей Вячеславович",
+    "org_dat": "индивидуальному предпринимателю Андрюшину Андрею Вячеславовичу",
     "inn": "222112243596",          # ИНН ИП совпадает с личным ИНН
-    "ogrnip": "326220200125931",    # из выписки ЕГРИП, ИП с 19.10.2026
+    "ogrnip": "326220200125931",    # из выписки ЕГРИП, ИП с 19.10.2026; пусто — ОГРНИП нигде не выводится
     "city": "г. Барнаул, Алтайский край",
     # Почту на сайте не указываем — связь через Telegram и телефон.
     "phone": "+7 983 601-89-54",
     "tg": "yamizxcq",     # username без @
 }
-EDITION = "20.10.2026"
+# ПРЕДПОЛОЖЕНИЕ: ИП применяет НПД (как раньше самозанятый). От этого зависят
+# строки про НДС и чек «Мой налог» — они собраны в TAX. Режим другой — править здесь.
+TAX = {
+    "status": "применяет налог на профессиональный доход (Федеральный закон № 422-ФЗ)",
+    "vat_short": "НДС не облагается: исполнитель применяет налог на профессиональный доход.",
+    "vat_oferta": "НДС не облагается (ч. 9 ст. 2 Федерального закона от 27.11.2018 № 422-ФЗ).",
+    "receipt": "формирует чек в приложении «Мой налог»",
+}
+EDITION = "16.11.2026"
 
 NAV = [
     ("index", "Главная"),
-    ("services", "Услуги и цены"),
+    ("services", "Услуги"),
     ("how", "Как работаем"),
-    ("works", "Работы"),
     ("contact", "Контакты"),
 ]
 LEGAL = [
@@ -55,6 +65,11 @@ def c(key):
     return v
 
 
+def og(fmt):
+    """Фрагмент с ОГРНИП; пока номера нет — пустая строка, на сайте ничего не торчит."""
+    return fmt % SITE["ogrnip"] if SITE["ogrnip"] else ""
+
+
 def phone_link():
     p = c("phone")
     digits = re.sub(r"[^\d+]", "", p)
@@ -72,25 +87,23 @@ def tg_link():
 
 
 def wordmark():
-    svg = open(os.path.join(HERE, "img", "wordmark.svg"), encoding="utf-8").read()
-    svg = svg.replace('fill="#2A2A28"', 'fill="currentColor"')
-    return svg.replace("<svg ", '<svg role="img" aria-label="Valora" ', 1)
+    return '<span class="brand__mark">VALORA</span>'
 
 
 def header(slug):
     links = "\n".join(
         '      <a href="%s.html"%s>%s</a>' % (s, ' aria-current="page"' if s == slug else "", t)
         for s, t in NAV)
-    return """<header class="top">
+    return """<header class="top{solid}">
   <div class="wrap">
-    <a class="brand" href="index.html">{wm}</a>
+    <a class="brand" href="index.html" aria-label="Valora, на главную">{wm}</a>
     <button class="burger" type="button" aria-expanded="false" aria-controls="nav">Меню</button>
     <nav class="nav" id="nav">
 {links}
     </nav>
     <a class="btn" href="{tg}"{ext}>Написать в Telegram</a>
   </div>
-</header>""".format(wm=wordmark(), links=links, tg=tg_url(),
+</header>""".format(wm=wordmark(), links=links, tg=tg_url(), solid="" if slug == "index" else " top--solid",
                     ext=' target="_blank" rel="noopener"' if SITE["tg"] else "")
 
 
@@ -102,16 +115,15 @@ def footer():
     <div class="foot__grid">
       <div>
         <a class="brand" href="index.html">{wm}</a>
-        <p class="foot__tag">Посадочная страница, лид-магнит и чат-бот под вашу нишу.</p>
+        <p class="foot__tag">Маркетинговое агентство для малого бизнеса.</p>
       </div>
       <ul>
 {nav}
       </ul>
       <div class="foot__req">
-        <p>ИП {fio}</p>
-        <p>Применяет налог на профессиональный доход</p>
+        <p>{org}</p>
         <p>ИНН {inn}</p>
-        <p>ОГРНИП {ogrnip}</p>
+        {ogrnip}
         <p>{city}</p>
         <p>{phone}</p>
         <p>Telegram {tg}</p>
@@ -121,14 +133,15 @@ def footer():
 {legal}
     <span>© 2026 Valora</span>
     </div>
+    <div class="foot__mega" aria-hidden="true">VALORA</div>
   </div>
-</footer>""".format(wm=wordmark(), nav=nav, legal=legal, fio=SITE["fio"], inn=SITE["inn"], ogrnip=SITE["ogrnip"],
-                    city=SITE["city"], phone=phone_link(), tg=tg_link())
+</footer>""".format(wm=wordmark(), nav=nav, legal=legal, org=SITE["org"], inn=SITE["inn"],
+                    ogrnip=og("<p>ОГРНИП %s</p>"), city=SITE["city"], phone=phone_link(), tg=tg_link())
 
 
 NBSP = [
     (re.compile(r"(\d) (\d{3})"), r"\1&nbsp;\2"),        # 20 000
-    (re.compile(r"(\d) (₽|%|дн|рабоч|календ|банк|час|лет|мин)"), r"\1&nbsp;\2"),
+    (re.compile(r"(\d) (₽|%|дн|рабоч|календ|банк|час|лет|мин|мес)"), r"\1&nbsp;\2"),
     (re.compile(r" (—|–) "), r"&nbsp;\1 "),                  # тире не в начале строки
     (re.compile(r"(^|[\s>(«])([а-яёА-ЯЁ]{1,2}) (?=[^\s<])"), r"\1\2&nbsp;"),  # предлоги
 ]
@@ -161,7 +174,9 @@ def page(slug, title, desc, body, doc=False):
   </div>
 </main>""".format(dnav=dnav, body=body)
     else:
-        body = "<main>\n%s\n</main>" % body
+        if slug != "index":
+            body = body.replace("<h1>", "<h1 data-split>", 1)
+        body = '<main%s>\n%s\n</main>' % ("" if slug == "index" else ' class="page-top"', body)
     full_title = title if slug == "index" else "%s — Valora" % title
     url = SITE["base"] + "/" + ("" if slug == "index" else slug + ".html")
     return """<!doctype html>
@@ -185,11 +200,13 @@ def page(slug, title, desc, body, doc=False):
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="img/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="preload" href="fonts/Jost-cyr-var.woff2" as="font" type="font/woff2" crossorigin>
-<script>document.documentElement.classList.add('js')</script>
+<link rel="preload" href="fonts/Unbounded-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/GolosText-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+{preload}<script>document.documentElement.classList.add('js')</script>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+<div class="progress" aria-hidden="true"></div>
 {header}
 {body}
 {footer}
@@ -197,7 +214,12 @@ def page(slug, title, desc, body, doc=False):
 </body>
 </html>
 """.format(t=full_title, d=desc, url=url, base=SITE["base"], header=header(slug),
-           body=body, footer=footer())
+           body=body, footer=footer(), preload=PRELOAD if slug == "index" else "")
+
+
+# Первый кадр героя грузим сразу: десктопный и телефонный варианты — по ширине экрана.
+PRELOAD = ('<link rel="preload" as="image" href="frames/hero/d/0001.webp" media="(min-aspect-ratio: 1/1)">\n'
+           '<link rel="preload" as="image" href="frames/hero/m/0001.webp" media="(max-aspect-ratio: 99/100)">\n')
 
 
 # ---------------------------------------------------------------------------
@@ -205,51 +227,104 @@ def page(slug, title, desc, body, doc=False):
 # ---------------------------------------------------------------------------
 
 def cta(title, text):
-    return """<section class="band band--ink cta">
+    return """<section class="cta">
   <div class="wrap">
-    <h2>{title}</h2>
-    <p class="lead">{text}</p>
-    <div class="actions">
-      <a class="btn btn--on-ink" href="{tg}">Написать в Telegram</a>
-      <a class="btn btn--on-ink-ghost" href="contact.html">Все контакты</a>
+    <h2 data-split>{title}</h2>
+    <p class="lead rv">{text}</p>
+    <div class="actions rv" style="--i:2">
+      <a class="btn" href="{tg}">Написать в Telegram</a>
+      <a class="btn btn--ghost" href="contact.html">Все контакты</a>
     </div>
   </div>
 </section>""".format(title=title, text=text, tg=tg_url())
 
 
-PRICE_ROWS = [
-    ("Лид-магнит", "Полезный материал в PDF под вашу нишу: гид, чек-лист или разбор. Его забирают в обмен на контакт.", "6 000 ₽"),
-    ("Чат-бот", "Отдаёт лид-магнит сразу, отвечает на частые вопросы и передаёт вам контакт. Работает на вашем аккаунте.", "5 000 ₽"),
-    ("Посадочная страница", "Одностраничный сайт с формой заявки. Размещается на вашем домене и хостинге.", "5 000 ₽"),
-    ("Каналы и рекомендации", "Подбор каналов продвижения под нишу и чек, рекомендации по трафику, по выбору подрядчика и постановке ему задачи.", "2 500 ₽"),
-    ("Видеоинструкция", "Как перенести страницу и бота на ваши ресурсы, если вы делаете это сами.", "1 500 ₽"),
+# Группы услуг (главная и страница «Услуги»): (название группы, [(услуга, описание)]).
+# Цен здесь нет намеренно: стоимость называем письменно после разговора.
+# Услуги группы «Видео и контент» и «Продажи» связаны с курсами: состав не менять без Андрея.
+SERVICES = [
+    ("Стратегия и аналитика", [
+        ("Аудит и стратегия",
+         "Разбираем продукт, аудиторию, конкурентов и то, откуда клиенты приходят сейчас. На выходе документ: что делать, в каком порядке и какой бюджет нужен."),
+        ("Аналитика",
+         "Подключаем счётчики и цели, помечаем заявки по источникам и собираем отчёт, где видно расход, число заявок и цену одной заявки."),
+    ]),
+    ("Платная реклама", [
+        ("Контекстная реклама",
+         "Яндекс Директ: запросы, объявления, ставки, минус-слова. Правим кампании по данным, а не по ощущениям."),
+        ("Таргетированная реклама",
+         "ВКонтакте и другие площадки: аудитории, креативы, проверка нескольких связок на небольшом бюджете."),
+        ("Telegram: рекламные посевы",
+         "Подбираем каналы, проверяем охваты и аудиторию, договариваемся о размещении и считаем результат. Размещение оплачиваете вы, напрямую каналу или бирже."),
+        ("Реклама у блогеров",
+         "Подбираем блогеров под вашу аудиторию, проверяем, что подписчики настоящие, пишем задание и ведём согласование. Блогеру платите вы."),
+    ]),
+    ("Маркетплейсы", [
+        ("Ведение кабинета WB",
+         "Ведём ваш кабинет Wildberries: карточки товаров (названия, описания, инфографика), цены и акции, остатки и поставки, рекламу внутри WB, ответы на отзывы и вопросы покупателей. Доступ к кабинету остаётся у вас, рекламный бюджет внутри WB тоже платите вы."),
+    ]),
+    ("Видео и контент", [
+        ("Вертикальные видео",
+         "Ролики для VK Клипов, YouTube Shorts, Telegram и Rutube: идея и сценарий, съёмка или работа с вашим материалом, монтаж, субтитры, обложки. Работаем пакетами роликов на месяц: экспертные, обзорные, рекламные."),
+        ("Видео для рекламы",
+         "Короткие вертикальные креативы под Директ, ВКонтакте и посевы: несколько вариантов одного предложения, чтобы по цифрам было видно, какой работает лучше."),
+        ("SMM и контент для соцсетей",
+         "Контент-план, тексты и оформление, публикации в Telegram, ВКонтакте и других соцсетях, ответы на комментарии. Публикуем после вашего согласования."),
+    ]),
+    ("Продажи", [
+        ("Менеджеры по продажам",
+         "Подбираем менеджеров по продажам под вашу нишу и подключаем их к работе с заявками: первый контакт, переписка и звонки по вашему скрипту, учёт в вашей таблице или CRM, отчёт по воронке. Скрипт и условия согласуем с вами заранее."),
+    ]),
+    ("Сайты и продукты", [
+        ("Посадочные страницы и лид-магниты",
+         "Одностраничный сайт с формой заявки и полезный материал в PDF, за которым оставляют контакт. Размещаем на вашем домене."),
+        ("ИТ-продукты",
+         "Telegram-боты, небольшие сайты, подключение форм к таблице или CRM под вашу задачу."),
+    ]),
+    ("Органика и репутация", [
+        ("Поисковая оптимизация (SEO)",
+         "Аудит сайта, структура и тексты, технические правки, отслеживание позиций."),
+        ("Управление репутацией (ORM)",
+         "Следим за отзывами на картах и площадках, отвечаем на них, помогаем собирать новые у реальных клиентов. Заказные отзывы не пишем."),
+    ]),
+    ("Специальные проекты", [
+        ("Нестандартные задачи",
+         "Запуск нового продукта, акции, конкурсы, коллаборации. Состав и формат обсуждаем отдельно."),
+    ]),
 ]
 
 
-def price_table():
-    rows = "\n".join("""      <tr data-sum="{v}">
-        <td>{n}<small>{d}</small></td>
-        <td>до 10 рабочих дней</td>
-        <td class="num">{p}</td>
-      </tr>""".format(n=n, d=d, p=p, v=re.sub(r"\D", "", p)) for n, d, p in PRICE_ROWS)
-    return """<table class="price">
-    <thead>
-      <tr><th>Услуга</th><th>Срок</th><th>Стоимость</th></tr>
-    </thead>
-    <tbody>
-{rows}
-    </tbody>
-    <tfoot>
-      <tr><td>Фиксированная часть, всё вместе</td><td>обычно 5–7 рабочих дней</td><td class="num price__total">20 000 ₽</td></tr>
-    </tfoot>
-  </table>""".format(rows=rows)
+def svc_groups():
+    """Главная: группы услуг, описание раскрывается при наведении или нажатии."""
+    out = []
+    for g, (name, items) in enumerate(SERVICES):
+        lis = "\n".join(
+            '        <li class="svci"><div class="svci__name">%s</div><div class="svci__desc"><p>%s</p></div></li>' % (n, d)
+            for n, d in items)
+        out.append('    <div class="svcgroup rv" style="--i:%d">\n      <h3 class="svcgroup__name">%s</h3>\n'
+                   '      <ul class="svcl">\n%s\n      </ul>\n    </div>' % (min(g, 3), name, lis))
+    return '<div class="svcgroups">\n%s\n  </div>' % "\n".join(out)
+
+
+def marquee():
+    names = [n for _, items in SERVICES for n, _d in items]
+    spans = "".join("<span>%s</span>" % n for n in names)
+    return '<div class="marquee" aria-hidden="true"><div class="marquee__track">%s%s</div></div>' % (spans, spans)
+
+
+def service_rows():
+    out = []
+    for label, items in SERVICES:
+        inner = "\n".join('<div class="svc"><h3>%s</h3><p>%s</p></div>' % (n, d) for n, d in items)
+        out.append('      <div class="row">\n        <p class="label">%s</p>\n        <div>%s</div>\n      </div>' % (label, inner))
+    return "\n".join(out)
 
 
 REQ = """<div class="req">
       <p><b>Исполнитель</b></p>
-      <p>ИП {fio}, плательщик НПД</p>
+      <p>{org}</p>
       <p>ИНН {inn}</p>
-      <p>ОГРНИП {ogrnip}</p>
+      {ogrnip}
       <p>{city}</p>
       <p>Телефон: {phone}</p>
       <p>Telegram: {tg}</p>
@@ -257,7 +332,7 @@ REQ = """<div class="req">
 
 
 def req():
-    return REQ.format(fio=SITE["fio"], inn=SITE["inn"], ogrnip=SITE["ogrnip"], city=SITE["city"],
+    return REQ.format(org=SITE["org"], inn=SITE["inn"], ogrnip=og("<p>ОГРНИП %s</p>"), city=SITE["city"],
                       phone=phone_link(), tg=tg_link())
 
 
@@ -265,256 +340,180 @@ def req():
 # Страницы
 # ---------------------------------------------------------------------------
 
-# Схема на первом экране: каналы трафика по внешнему кругу, страница, гид
-# и бот — по внутреннему, в центре заказчик. Точки-люди бегут по путям
-# (script.js). Цифр здесь нет намеренно: это схема, а не статистика.
-CHANNELS = ["Авито", "Telegram", "ВКонтакте", "Директ", "Рассылки", "Сообщества", "Партнёры", "Видео"]
-HUBS = [("Страница", -90), ("Бот", 30), ("Гид", 150)]
-
-
-def orbit():
-    import math
-    cx, cy, R, r = 320, 305, 200, 100
-
-    def pt(rad, deg):
-        a = math.radians(deg)
-        return cx + rad * math.cos(a), cy + rad * math.sin(a)
-
-    def gap(a, b):
-        return abs((a - b + 180) % 360 - 180)
-
-    paths, chans = [], []
-    for i, ch in enumerate(CHANNELS):
-        deg = -67.5 + i * 45
-        x, y = pt(R, deg)
-        hub, hdeg = min(HUBS, key=lambda h: gap(deg, h[1]))
-        hx, hy = pt(r, hdeg)
-        qx, qy = pt((R + r) / 2 + 10, deg)
-        paths.append('<path class="o-path" d="M%.1f %.1f Q%.1f %.1f %.1f %.1f L%d %d" data-ch="%s" data-hub="%s"/>'
-                     % (x, y, qx, qy, hx, hy, cx, cy, ch, hub))
-        c = math.cos(math.radians(deg))
-        anchor = "start" if c > .3 else "end" if c < -.3 else "middle"
-        lx, ly = pt(R + 16, deg)
-        ly += 5 + (8 if math.sin(math.radians(deg)) > .9 else -8 if math.sin(math.radians(deg)) < -.9 else 0)
-        chans.append('<g class="o-ch" style="--i:%d"><circle cx="%.1f" cy="%.1f" r="5"/>'
-                     '<text x="%.1f" y="%.1f" text-anchor="%s">%s</text></g>' % (i, x, y, lx, ly, anchor, ch))
-    hubs = []
-    for k, (name, deg) in enumerate(HUBS):
-        x, y = pt(r, deg)
-        hubs.append('<g class="o-hub" data-hub="%s" style="--i:%d"><circle cx="%.1f" cy="%.1f" r="40"/>'
-                    '<text x="%.1f" y="%.1f" text-anchor="middle">%s</text></g>' % (name, k, x, y, x, y + 5, name))
-    svg = """<svg viewBox="30 0 580 610" role="img" aria-label="Схема: каналы трафика ведут на страницу, гид и бота, а от них заявки приходят к вам">
-        <circle class="o-ring" cx="{cx}" cy="{cy}" r="{R}"/>
-        <circle class="o-ring" cx="{cx}" cy="{cy}" r="{r}"/>
-        {paths}
-        <g class="o-dots"></g>
-        {chans}
-        {hubs}
-        <g class="o-core">
-          <circle class="o-pulse" cx="{cx}" cy="{cy}" r="52"/>
-          <circle class="o-core__c" cx="{cx}" cy="{cy}" r="52"/>
-          <text x="{cx}" y="{ty1}" text-anchor="middle">Заявки</text>
-          <text class="o-core__s" x="{cx}" y="{ty2}" text-anchor="middle">вам</text>
-        </g>
-      </svg>""".format(cx=cx, cy=cy, R=R, r=r, ty1=cy + 1, ty2=cy + 21,
-                       paths="\n        ".join(paths), chans="\n        ".join(chans),
-                       hubs="\n        ".join(hubs))
-    return """<div class="orbit">
-      <div class="orbit__stage">
-      {svg}
-      <div class="o-card o-card--a"><b class="o-count">Напрямую</b><span class="o-count-t">заявки приходят вам, минуя нас</span></div>
-      <div class="o-card o-card--b"><b class="o-event">Скачали гид</b><span class="o-from">пришли из Telegram</span></div>
-      </div>
-      <p class="o-cap">Схема, а не статистика: так трафик проходит через страницу, гид и бота — и приходит к вам.</p>
-    </div>""".format(svg=svg)
-
-
-# Переписка с демо-ботом «Опоры» на главной. Реплики — из bot-psy/content.py,
-# сокращённые до двух вопросов. Без JS видна целиком, со скриптом проигрывается.
-CHAT_SCRIPT = [
-    ("bot", "Здравствуйте. Это бот практики «Опора». Задам пару коротких вопросов и отдам гид «Почему терапия не приносит облегчения»."),
-    ("keys", ["Хорошо, начнём"], 0),
-    ("bot", "С чем сейчас сложнее всего?"),
-    ("keys", ["Тревога, бессонница", "Выгорание, апатия", "Отношения, границы"], 0),
-    ("bot", "Как давно это длится?"),
-    ("keys", ["Несколько недель", "Несколько месяцев", "Больше года"], 1),
-    ("bot", "Спасибо. Держите гид — там разобрано, почему так бывает и что с этим делать."),
-    ("file", "Почему терапия не приносит облегчения", "PDF, 15 страниц"),
-    ("bot", "Если захотите разобрать это вживую — запишитесь на встречу-знакомство."),
-    ("keys", ["Записаться", "Пока почитаю"], 0),
+STAGES = [
+    ("Разбираем", "Продукт, аудитория, конкуренты и то, откуда клиенты приходят сейчас."),
+    ("Выбираем", "Один-два канала, где ваша аудитория и ваш чек сходятся. Не все сразу."),
+    ("Запускаем", "Страница, ролики и реклама на вашем аккаунте и за ваш бюджет."),
+    ("Считаем", "Раз в две недели: расход, заявки и цена одной заявки. Что меняем и почему."),
 ]
 
 
-def chat_side():
-    """Окно переписки + карточка заявки. Стоит на главной и на «Работах»."""
-    feed = []
-    for item in CHAT_SCRIPT:
-        kind = item[0]
-        if kind == "bot":
-            feed.append('<div class="msg msg--bot">%s</div>' % item[1])
-        elif kind == "file":
-            feed.append('<div class="msg msg--bot msg--file"><i>PDF</i><div><b>%s</b><span>%s</span></div></div>'
-                        % (item[1], item[2]))
-        else:
-            keys, pick = item[1], item[2]
-            feed.append('<div class="keys">%s</div>' % "".join(
-                '<span%s>%s</span>' % (' data-pick' if k == pick else "", t) for k, t in enumerate(keys)))
-            feed.append('<div class="msg msg--me">%s</div>' % keys[pick])
-    return """<div class="demo__side">
-      <div class="chat" aria-label="Пример переписки клиента с ботом">
-        <div class="chat__head"><i>О</i><div><b>Опора</b><span>бот практики</span></div></div>
-        <div class="chat__feed">
-          {feed}
+def stages():
+    items = "\n".join(
+        '    <div class="stage rv" style="--i:%d"><span class="stage__n">Шаг %d</span><h3>%s</h3><p>%s</p></div>' % (i, i + 1, h, p)
+        for i, (h, p) in enumerate(STAGES))
+    return '<div class="stages">\n%s\n  </div>' % items
+
+
+def steps_scene():
+    """Четыре шага работы поверх сцены «хаос превращается в порядок»: шаг меняется вместе с прокруткой."""
+    n = len(STAGES)
+    layers = []
+    for i, (h, p) in enumerate(STAGES):
+        a = 0 if i == 0 else round(i / n - 0.02, 3)
+        b = 1 if i == n - 1 else round((i + 1) / n - 0.02, 3)
+        layers.append(
+            '    <div class="scrub-layer layer-mid step-layer" data-show="%s %s">\n'
+            '      <div class="wrap"><span class="stage__n">Шаг %d из %d</span><h3>%s</h3><p>%s</p></div>\n'
+            '    </div>' % (a, b, i + 1, n, h, p))
+    return """<section class="scrub scrub--steps" id="kak" data-seq="order" data-d="80" data-m="48" data-bg="#000">
+  <div class="scrub-stage">
+    <canvas class="scrub-canvas" aria-hidden="true"></canvas>
+    <div class="scrub-shade"></div>
+    <div class="scrub-layer steps-head" data-show="0 1">
+      <div class="wrap">
+        <h2>Как идёт работа</h2>
+        <p class="lead">Бюджет в любом случае один и тот же. Разница в том, можно ли через месяц сказать, что сработало, а что нет.</p>
+      </div>
+    </div>
+{layers}
+  </div>
+</section>""".replace("{layers}", "\n".join(layers))
+
+
+def cta_scene(title, text):
+    """Финал: камера влетает в кольцо света, на последних кадрах проявляется призыв."""
+    return """<section class="scrub scrub--cta" id="kontakt" data-seq="portal" data-d="72" data-m="44" data-bg="#000">
+  <div class="scrub-stage">
+    <canvas class="scrub-canvas" aria-hidden="true"></canvas>
+    <div class="scrub-shade"></div>
+    <div class="scrub-layer layer-mid cta-layer" data-show="0.5 1">
+      <div class="wrap">
+        <h2>{title}</h2>
+        <p class="lead">{text}</p>
+        <div class="actions">
+          <a class="btn" href="{tg}">Написать в Telegram</a>
+          <a class="btn btn--ghost" href="contact.html">Все контакты</a>
         </div>
       </div>
-      <div class="lead-card">
-        <p class="label">Заявка в ваш Telegram</p>
-        <b>Тревога, бессонница — несколько месяцев</b>
-        <span>Скачал гид, хочет на встречу-знакомство</span>
-      </div>
-      <button class="chat__replay" type="button" hidden>Показать ещё раз</button>
-      <p class="demo__cap">Демо-бот для ниши «психология». Под вашу нишу — свои вопросы и свой гид.</p>
-    </div>""".format(feed="\n          ".join(feed))
-
-
-def chat():
-    return """<section class="band band--tone demo">
-  <div class="wrap demo__grid">
-    <div>
-      <h2>Так это видит ваш клиент</h2>
-      <p class="lead">Человек пришёл с рекламы, ответил на пару вопросов кнопками — и через минуту у него в руках гид. А у вас в Telegram — заявка с его ответами: ещё до звонка понятно, с чем он придёт.</p>
-      <div class="rows demo__rows">
-        <div class="row"><p class="label">Сразу</p><div><p>Отвечает в ту же секунду — ночью и в выходные тоже. Человек не ждёт и не уходит к соседям.</p></div></div>
-        <div class="row"><p class="label">По делу</p><div><p>Спрашивает то, что вам нужно знать до разговора, — кнопками, без анкет.</p></div></div>
-        <div class="row"><p class="label">Вам</p><div><p>Контакт и ответы приходят в ваш Telegram. Через нас заявки не идут.</p></div></div>
-      </div>
-      <div class="actions"><a class="btn btn--ghost" href="works.html">Посмотреть работы</a></div>
     </div>
-    {side}
   </div>
-</section>""".format(side=chat_side())
+</section>""".format(title=title, text=text, tg=tg_url())
 
 
 def p_index():
     return page("index",
-        "Valora — посадочная страница, лид-магнит и чат-бот под вашу нишу",
-        "Собираем посадочную страницу, лид-магнит и чат-бот под вашу нишу за 5–7 рабочих дней и передаём вам: страница на вашем домене, бот на вашем аккаунте.",
-        """<section class="hero">
-  <div class="wrap hero__grid">
-    <div>
-      <h1>Посадочная страница, лид-магнит и чат-бот — под вашу нишу</h1>
-      <p class="lead">Собираем всё за 5–7 рабочих дней и передаём вам: страница на вашем домене, бот на вашем аккаунте, заявки приходят к вам напрямую. К ним — подборка каналов и рекомендации, как запустить трафик и поставить задачу подрядчику.</p>
-      <div class="actions">
-        <a class="btn" href="{tg}">Обсудить задачу</a>
-        <a class="btn btn--ghost" href="services.html">Услуги и цены</a>
+        "Valora — маркетинговое агентство: реклама, видео, сайты",
+        "Valora — небольшое маркетинговое агентство: аудит, реклама, вертикальные видео, сайты, кабинеты на Wildberries. Считаем каждый рубль бюджета. Деньги и аккаунты остаются у вас.",
+        """<section class="scrub" id="top" data-seq="hero" data-d="96" data-m="56" data-bg="#000">
+  <div class="scrub-stage">
+    <canvas class="scrub-canvas" aria-hidden="true"></canvas>
+    <div class="scrub-shade"></div>
+    <div class="scrub-layer hero-copy" data-show="0 0.34">
+      <div class="wrap">
+        <h1 data-split>Реклама, видео и сайты. Без тумана.</h1>
+        <p class="lead">Valora — небольшое агентство. Считаем каждый рубль бюджета и показываем цифры: расход, заявки, цена одной заявки. Рекламные деньги вы платите площадкам сами.</p>
+        <div class="actions">
+          <a class="btn" href="{tg}">Обсудить задачу</a>
+          <a class="btn btn--ghost" href="#uslugi">Услуги</a>
+        </div>
       </div>
     </div>
-    {orbit}
+    <div class="scrub-layer hero-sub" data-show="0.62 1">
+      <div class="wrap"><p>Небольшое агентство, в котором всё считают и ничего не прячут.</p></div>
+    </div>
+    <div class="scrub-layer hero-mega" data-show="0.52 1" aria-hidden="true">
+      <div class="wrap"><b>VALORA</b></div>
+    </div>
+    <div class="scrub-layer scroll-hint">Листайте</div>
   </div>
 </section>
 
-<section class="band band--tone">
+<section class="manifest">
   <div class="wrap">
-    <div class="head">
-      <h2>Предложение в лоб теряет девять человек из десяти</h2>
-      <p class="lead">Трафик стоит одинаково, кто бы на него ни пришёл. Разница в том, сколько контактов вы из него забираете.</p>
-    </div>
-    <div class="compare">
-      <div>
-        <p class="label">Как делают обычно</p>
-        <div class="dots" data-keep="first" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-        <p class="dots__cap"><b data-to="1">10</b> из 10 оставили контакт</p>
-        <blockquote>«Купите кухню на заказ со скидкой 30 %»</blockquote>
-        <ul>
-          <li>Откликается только тот, кто готов купить прямо сейчас.</li>
-          <li>Остальные уходят и не оставляют о себе ничего.</li>
-          <li>Платить за них пришлось столько же.</li>
-        </ul>
-      </div>
-      <div>
-        <p class="label">Как делаем мы</p>
-        <div class="dots" data-keep="nine" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-        <p class="dots__cap"><b data-to="9">10</b> из 10 оставили контакт</p>
-        <blockquote>«Три файла, которые сэкономят до 100 000 ₽ при заказе кухни»</blockquote>
-        <ul>
-          <li>Забрать файл не страшно — человек оставляет контакт.</li>
-          <li>В базу попадают и те, кто купит через месяц.</li>
-          <li>Дальше с ними работает бот: отвечает ночью, напоминает, передаёт вам.</li>
-        </ul>
-      </div>
-    </div>
-    <p class="compare__result">Тот же трафик, но контактов из него в разы больше. Продаёте вы сами — в ваш разговор с клиентом мы не вмешиваемся.</p>
+    <p data-words>Мы не обещаем чудес. Разбираем продукт, выбираем один-два канала, запускаем и считаем цену каждой заявки. Что окупается, растим. Остальное выключаем.</p>
   </div>
 </section>
+
+{marquee}
+
+<section class="band" id="uslugi">
+  <div class="wrap">
+    <div class="head">
+      <h2 data-split>С чем помогаем</h2>
+      <p class="lead rv">Берём любое направление отдельно или собираем план под вашу задачу. Наведите на строку, чтобы увидеть, что входит. Полный разбор есть на странице «Услуги».</p>
+    </div>
+    {groups}
+    <div class="actions rv"><a class="btn btn--ghost" href="services.html">Подробно об услугах</a></div>
+  </div>
+</section>
+
+{steps}
 
 <section class="band">
   <div class="wrap">
     <div class="head">
-      <h2>Что вы получаете</h2>
+      <h2 data-split>Деньги и доступы остаются у вас</h2>
+      <p class="lead rv">Самое неприятное в работе с подрядчиком: бюджет и аккаунты оказываются у него. Здесь устроено наоборот.</p>
     </div>
     <div class="rows">
-      <div class="row">
-        <p class="label">Посадочная страница</p>
-        <div><h3>Одностраничный сайт с формой заявки</h3><p>Тексты под вашу нишу, ваш продукт и ваши цены. Страница живёт на вашем домене, заявки уходят в вашу таблицу или почту.</p></div>
+      <div class="row rv">
+        <p class="label">Рекламный бюджет</p>
+        <div><h3>Платите площадкам напрямую</h3><p>Яндексу и ВКонтакте со своего счёта. Мы эти деньги не принимаем и не распоряжаемся ими: в оплате агентства есть только наша работа.</p></div>
       </div>
-      <div class="row">
-        <p class="label">Лид-магнит</p>
-        <div><h3>Гид в PDF, за которым приходят</h3><p>Полезный материал, ради которого человек оставляет контакт, даже если покупать пока не готов. Пример — три гида в разделе «Работы».</p></div>
+      <div class="row rv">
+        <p class="label">Аккаунты</p>
+        <div><h3>Кабинеты, счётчики, домен оформлены на вас</h3><p>Работаем по выданному доступу. Если разойдёмся, всё остаётся у вас вместе с историей кампаний.</p></div>
       </div>
-      <div class="row">
-        <p class="label">Чат-бот</p>
-        <div><h3>Telegram-бот, который не спит</h3><p>Сразу отдаёт гид, отвечает на частые вопросы, собирает контакт и присылает его вам. Бот подключается к вашему аккаунту.</p></div>
-      </div>
-      <div class="row">
-        <p class="label">Рекомендации</p>
-        <div><h3>Где взять трафик и кому его заказать</h3><p>Два-три канала под вашу нишу и чек, как выбрать подрядчика и какую задачу ему поставить. Плюс чек-лист внедрения, чтобы ничего не потерялось.</p></div>
+      <div class="row rv">
+        <p class="label">Отчёты</p>
+        <div><h3>Раз в две недели, по данным кабинета</h3><p>Расход, число заявок и цена одной заявки. Доступ к кабинету у вас есть, цифры можно проверить самому.</p></div>
       </div>
     </div>
   </div>
 </section>
 
-{chat}
-
-{cta}""".format(tg=tg_url(), orbit=orbit(), chat=chat(), cta=cta(
+{cta}""".format(tg=tg_url(), marquee=marquee(), groups=svc_groups(), steps=steps_scene(), cta=cta_scene(
             "Расскажите, чем вы занимаетесь",
-            "За один разговор поймём, подходит ли вашей нише такая связка, и назовём каналы, с которых стоит начать. Если не подходит — так и скажем.")))
+            "За один разговор поймём, есть ли смысл в рекламе для вашей ниши и с чего начать. Если смысла нет, так и скажем.")))
 
 
 def p_services():
     return page("services",
-        "Услуги и цены",
-        "Посадочная страница, лид-магнит, чат-бот и рекомендации по трафику: 20 000 ₽ фиксированная часть и 10 % чистой прибыли, если она есть.",
+        "Услуги",
+        "Услуги Valora: аудит и аналитика, реклама, кабинет Wildberries, вертикальные видео, SMM, менеджеры по продажам, сайты, SEO, ORM.",
         """<section class="hero">
   <div class="wrap">
-    <h1>Услуги и цены</h1>
-    <p class="lead">Цена работы фиксированная и известна до начала. Бюджет на трафик вы тратите сами и платите площадкам напрямую.</p>
+    <h1>Услуги</h1>
+    <p class="lead">Каждое направление можно взять отдельно. Стоимость называем письменно после разговора, до оплаты: она зависит от задачи, ниши и объёма. Рекламный бюджет вы тратите сами и платите площадкам напрямую.</p>
   </div>
 </section>
 
 <section class="band">
   <div class="wrap">
-    <div class="head">
-      <h2>Состав и стоимость</h2>
-      <p class="lead">Оплачивается один раз, после того как согласовали состав работ. Сроки считаются с момента, как вы передали материалы: описание продукта, цены, фото, доступы.</p>
+    <div class="rows">
+{rows}
     </div>
-    {table}
-    <p class="note after">НДС не облагается: исполнитель применяет налог на профессиональный доход. На каждую оплату формируется чек в «Мой налог».</p>
   </div>
 </section>
 
 <section class="band band--tone">
   <div class="wrap">
     <div class="head">
-      <h2>Что ещё входит в расчёт</h2>
+      <h2>Как формируется стоимость</h2>
     </div>
     <div class="rows">
       <div class="row">
-        <p class="label">Переменная часть</p>
-        <div><h3>Процент с продаж, если они есть</h3><p>10 % чистой прибыли с продаж, которые пришли через переданные материалы. Считаете вы сами, по своему учёту. Продаж нет — платить нечего.</p></div>
+        <p class="label">Работа агентства</p>
+        <div><h3>Фиксируем до оплаты</h3><p>После разговора присылаем состав работ, срок и стоимость. Разовые услуги оплачиваются целиком, ежемесячные — за месяц вперёд. Менять условия по ходу без вашего согласия мы не можем.</p></div>
       </div>
       <div class="row">
-        <p class="label">Бюджет на трафик</p>
-        <div><h3>От 10 000 ₽ — вы платите площадкам напрямую</h3><p>Рекламу мы не размещаем и кампании не ведём. Эти деньги к нам не поступают, поэтому в стоимость услуг не входят и не возвращаются.</p></div>
+        <p class="label">Рекламный бюджет</p>
+        <div><h3>Вы платите площадкам напрямую</h3><p>Сумму выбираете вы. Назвать, с какой стоит начинать, можно после аудита: она зависит от ниши, чека и региона. Эти деньги к нам не поступают.</p></div>
+      </div>
+      <div class="row">
+        <p class="label">Не входит</p>
+        <div><h3>Домен, хостинг, съёмочная техника и актёры</h3><p>Домен и хостинг оформляются на вас, платите регистратору сами. Если для роликов нужна съёмка с актёрами, студией или выездом, считаем это отдельной статьёй и согласуем заранее.</p></div>
       </div>
     </div>
   </div>
@@ -528,40 +527,44 @@ def p_services():
     <div class="rows">
       <div class="row">
         <p class="label">Способ</p>
-        <div><p>Банковской картой или через СБП на защищённой странице ЮKassa. Ссылку на оплату присылаем после того, как согласовали состав работ.</p></div>
+        <div><p>Банковской картой или через СБП на защищённой странице ЮKassa. Ссылку на оплату присылаем после того, как согласовали состав работ и стоимость.</p></div>
       </div>
       <div class="row">
         <p class="label">Документы</p>
-        <div><p>Работаем по <a href="oferta.html">публичной оферте</a>: оплата означает её принятие. Если вам нужен подписанный договор — пришлём, условия в нём те же.</p></div>
+        <div><p>Работаем по <a href="oferta.html">публичной оферте</a>: оплата означает её принятие. Нужен подписанный договор — пришлём, условия в нём те же.</p></div>
+      </div>
+      <div class="row">
+        <p class="label">Налоги и чек</p>
+        <div><p>{vat} На каждую оплату формируется чек.</p></div>
       </div>
       <div class="row">
         <p class="label">Результат</p>
-        <div><p>Передаём электронно: ссылки, файлы, доступы и видеоинструкцию. Физической доставки нет.</p></div>
+        <div><p>Передаём электронно: файлы, ролики, ссылки, доступы и отчёты. Физической доставки нет.</p></div>
       </div>
     </div>
   </div>
 </section>
 
-{cta}""".format(table=price_table(), cta=cta(
-            "Посчитаем под вашу нишу",
-            "Назовите продукт, средний чек и регион — прикинем, с каких каналов начать и какой бюджет на трафик нужен на старте.")))
+{cta}""".format(rows=service_rows(), vat=TAX["vat_short"], cta=cta(
+            "Расскажите о задаче",
+            "Назовите продукт, средний чек и регион — подскажем, с чего начать, и пришлём состав работ со стоимостью.")))
 
 
 FAQ = [
-    ("Чем это отличается от обычной рекламы?",
-     "Реклама — это трафик: вы платите за показы и клики. Мы делаем то, куда этот трафик приходит, — страницу, гид и бота, которые превращают посетителей в контакты. Трафик вы покупаете сами, напрямую у площадок или подрядчиков; мы подсказываем где и как поставить задачу."),
-    ("Какие ниши подходят?",
-     "Услуги с консультацией перед покупкой: психологи и коучи, юристы, мебель и кухни на заказ, ремонт, недвижимость, онлайн-школы. Хуже всего — импульсные покупки с низким чеком: там гид лишний, человек и так купит или уйдёт."),
-    ("Что нужно от меня?",
-     "Описание продукта и цен, фото или разрешение взять стоковые, домен и аккаунт в Telegram для бота. Если домена нет — поможем выбрать и подключить. Сроки идут с момента, как всё это у нас."),
+    ("С какого рекламного бюджета имеет смысл начинать?",
+     "Назвать сумму до аудита было бы гаданием: она зависит от ниши, среднего чека и региона. Скажем только, что очень маленький бюджет редко набирает достаточно показов, чтобы по нему можно было что-то решить. На аудите посчитаем конкретно."),
+    ("Кабинеты и сайт будут оформлены на меня?",
+     "Да. Рекламные кабинеты, счётчики, домен и страница создаются на ваши аккаунты, мы работаем по выданному доступу. Если решите закончить сотрудничество, всё останется у вас."),
+    ("Деньги на рекламу платить вам?",
+     "Нет. Бюджет вы вносите площадке сами. Мы не принимаем его и не переводим дальше — в нашей оплате только работа агентства."),
     ("Сколько будет заявок?",
-     "Честно — не знаем заранее, и никто не знает. Это зависит от бюджета на трафик, ниши, чека и того, как быстро вы отвечаете. Поэтому цифр не обещаем, а в первые недели вместе смотрим статистику и правим то, что не работает."),
-    ("Что за переменная часть?",
-     "Небольшой процент с продаж, которые пришли через наши материалы: 10 % чистой прибыли по вашему собственному учёту. Нет продаж — нет и его."),
-    ("Можно ли без переменной части?",
-     "Напишите — обсудим. Базовые условия описаны в оферте, отдельные договорённости фиксируем в договоре."),
-    ("А если не понравится результат?",
-     "После передачи у вас три дня, чтобы принять работу или прислать замечания. Доработки по обоснованным замечаниям делаем. Если откажетесь от услуг до начала работы — вернём оплату полностью, в процессе — за вычетом того, что уже сделано, по ценам из таблицы."),
+     "Заранее не знает никто, и цифр мы не обещаем. Заявки зависят от бюджета, ниши, чека и от того, как быстро вы отвечаете. Зато раз в две недели показываем, сколько их пришло, откуда и во сколько каждая обошлась."),
+    ("С какими нишами работаете?",
+     "Лучше всего подходят услуги с консультацией перед покупкой: психологи и коучи, юристы, ремонт, мебель на заказ, недвижимость, онлайн-школы, локальные сервисы. Не берёмся за товары с копеечным чеком, где реклама не окупится, и за то, что нельзя рекламировать по закону."),
+    ("Можно взять только часть услуг?",
+     "Да, каждая услуга продаётся отдельно. Например, только аудит: он остаётся у вас, и по нему можно работать с любым подрядчиком."),
+    ("А если результат не понравится?",
+     "После передачи у вас три дня, чтобы принять работу или прислать замечания. Обоснованные замечания дорабатываем. Если откажетесь до начала работы, вернём оплату полностью, в процессе — за вычетом того, что уже сделано, по стоимости из согласованного состава работ."),
 ]
 
 
@@ -572,11 +575,11 @@ def p_how():
       </details>""".format(q=q, a=a) for q, a in FAQ)
     return page("how",
         "Как работаем",
-        "От первого разговора до работающей связки: шаги, сроки и что нужно от вас.",
+        "От первого разговора до отчёта по рекламе: шаги, сроки и что нужно от вас.",
         """<section class="hero">
   <div class="wrap">
     <h1>Как работаем</h1>
-    <p class="lead">Вы занимаетесь продуктом, мы — тем, куда придёт трафик. От разговора до передачи материалов — обычно полторы недели, из них 5–7 рабочих дней на саму сборку.</p>
+    <p class="lead">Вы занимаетесь продуктом, мы — тем, откуда придут клиенты. От разговора до запущенной рекламы обычно две-три недели, если материалы и доступы пришли вовремя.</p>
   </div>
 </section>
 
@@ -585,31 +588,27 @@ def p_how():
     <div class="steps">
       <div class="step">
         <div><h3>Разговор</h3><p class="when">15–20 минут, бесплатно</p></div>
-        <p>Что продаёте, кому, по какой цене и откуда сейчас приходят клиенты. Скажем, подходит ли связка вашей нише, и если нет — не будем её продавать.</p>
+        <p>Что продаёте, кому, по какой цене и откуда клиенты приходят сейчас. Скажем, чем можем помочь, а если ничем — не будем продавать то, что вам не нужно.</p>
       </div>
       <div class="step">
-        <div><h3>Оплата</h3><p class="when">в течение 3 дней</p></div>
-        <p>Согласуем состав работ и присылаем ссылку на оплату через ЮKassa. Оплата — это принятие оферты; нужен подписанный договор — пришлём.</p>
+        <div><h3>Аудит</h3><p class="when">до 7 рабочих дней</p></div>
+        <p>Смотрим продукт, аудиторию, конкурентов и текущие каналы. Показываем документ с планом: что делаем, в каком порядке и какой нужен бюджет. С этого шага можно начать и остановиться: аудит остаётся у вас.</p>
       </div>
       <div class="step">
-        <div><h3>Материалы от вас</h3><p class="when">с этого момента идёт срок</p></div>
-        <p>Описание продукта и цен, фото, домен, аккаунт для бота. Короткий бриф пришлём сами — заполнить его можно за вечер.</p>
+        <div><h3>Согласование и оплата</h3><p class="when">в течение 3 дней</p></div>
+        <p>Выбираете, что берёте дальше, мы согласуем состав работ и стоимость и присылаем ссылку на оплату через ЮKassa. Оплата — это принятие оферты; нужен подписанный договор — пришлём.</p>
       </div>
       <div class="step">
-        <div><h3>Сборка</h3><p class="when">5–7 рабочих дней, по оферте до 10</p></div>
-        <p>Пишем гид, собираем страницу и бота, подбираем каналы и готовим рекомендации. Промежуточные версии показываем — править по ходу проще, чем в конце.</p>
+        <div><h3>Сборка</h3><p class="when">7–10 рабочих дней</p></div>
+        <p>Пишем тексты, собираем страницу и лид-магнит, настраиваем кабинеты и объявления. Промежуточные версии показываем: править по ходу проще, чем в конце.</p>
       </div>
       <div class="step">
-        <div><h3>Передача</h3><p class="when">3 дня на приёмку</p></div>
-        <p>Страница переезжает на ваш домен, бот — на ваш аккаунт, заявки идут вам. Вместе с этим — рекомендации, чек-лист внедрения и видеоинструкция.</p>
+        <div><h3>Запуск</h3><p class="when">ваш бюджет, платите площадке напрямую</p></div>
+        <p>Включаем рекламу в один-два канала. Первые две недели смотрим на цифры каждый день: на старте ошибки обходятся дороже всего.</p>
       </div>
       <div class="step">
-        <div><h3>Запуск трафика</h3><p class="when">ваш бюджет, от 10 000 ₽</p></div>
-        <p>Вы запускаете два-три канала — сами или через подрядчика, которому ставите задачу по нашим рекомендациям. Деньги на трафик идут площадкам напрямую.</p>
-      </div>
-      <div class="step">
-        <div><h3>Сопровождение</h3><p class="when">первые 90 дней</p></div>
-        <p>Раз в две недели смотрим статистику и правим то, что не работает: каналы, тексты, сценарий бота.</p>
+        <div><h3>Отчёты и правки</h3><p class="when">раз в две недели</p></div>
+        <p>Расход, заявки, цена одной заявки, что меняем и почему. Всё лежит на ваших аккаунтах: продолжать с нами необязательно.</p>
       </div>
     </div>
   </div>
@@ -631,60 +630,10 @@ def p_how():
             "Пятнадцать минут, чтобы понять, есть ли смысл. Ничего не обязывает.")))
 
 
-def p_works():
-    return page("works",
-        "Работы",
-        "Демо-проекты Valora: посадочная страница психолога, три гида-лид-магнита и чат-бот.",
-        """<section class="hero">
-  <div class="wrap">
-    <h1>Работы</h1>
-    <p class="lead">Здесь демо-проекты: они сделаны, чтобы показать формат целиком, от страницы до бота. Имя специалиста, отзывы, цены и контакты в них вымышленные. Работы для заказчиков появятся здесь с их согласия.</p>
-  </div>
-</section>
-
-<section class="band">
-  <div class="wrap">
-    <article class="work">
-      <img class="work__img" src="img/work-opora.jpg" width="1200" height="760" alt="Первый экран посадочной страницы «Опора» — частная практика психолога" loading="lazy">
-      <div>
-        <p class="label">Посадочная страница</p>
-        <h3>«Опора» — частная практика психолога</h3>
-        <p>Одна страница с записью на встречу-знакомство, ответами на страхи перед первой сессией и гидом в обмен на контакт. Анонимные отзывы — потому что в психологии именные нарушают конфиденциальность.</p>
-        <div class="actions"><a class="btn btn--ghost" href="https://yamizxcq.github.io/opora-psy/" target="_blank" rel="noopener">Открыть страницу</a></div>
-      </div>
-    </article>
-    <article class="work">
-      <div class="guides">
-        <img src="img/work-guide-psy.jpg" width="600" height="1067" alt="Обложка гида для психолога" loading="lazy">
-        <img src="img/work-guide-realty.jpg" width="600" height="1067" alt="Обложка гида для агентства недвижимости" loading="lazy">
-        <img src="img/work-guide-school.jpg" width="600" height="1067" alt="Обложка гида для онлайн-школы" loading="lazy">
-      </div>
-      <div>
-        <p class="label">Лид-магниты</p>
-        <h3>Три гида для трёх ниш</h3>
-        <p>Психология, недвижимость, онлайн-школа — по 15 страниц, формат под экран телефона. Каждый отвечает на вопрос, который человек задаёт себе до покупки, и только потом рассказывает о продукте.</p>
-      </div>
-    </article>
-    <article class="work demo">
-      <div>
-        <p class="label">Чат-бот</p>
-        <h3>Бот «Опоры» в Telegram</h3>
-        <p>Отдаёт гид сразу после запроса, отвечает на частые вопросы и передаёт контакт специалисту. Рядом — как это выглядит со стороны клиента и что в этот момент приходит владельцу практики.</p>
-      </div>
-      {chat}
-    </article>
-  </div>
-</section>
-
-{cta}""".format(chat=chat_side(), cta=cta(
-            "Хотите такое же для своей ниши?",
-            "Напишите, чем занимаетесь, — покажем, как связка выглядела бы у вас.")))
-
-
 def p_contact():
     return page("contact",
         "Контакты",
-        "Как связаться с Valora: Telegram, телефон, почта и реквизиты исполнителя.",
+        "Как связаться с Valora: Telegram, телефон и реквизиты индивидуального предпринимателя.",
         """<section class="hero">
   <div class="wrap">
     <h1>Контакты</h1>
@@ -695,6 +644,7 @@ def p_contact():
 <section class="band">
   <div class="wrap">
     <div class="contacts">
+      <div><p class="label">Исполнитель</p><b>{org}</b></div>
       <div><p class="label">Telegram</p><b>{tg}</b></div>
       <div><p class="label">Телефон</p><b>{phone}</b></div>
       <div><p class="label">Где</p><b>{city}, работаем со всей Россией дистанционно</b></div>
@@ -708,16 +658,17 @@ def p_contact():
       <h2>Реквизиты</h2>
     </div>
     <div class="rows">
-      <div class="row"><p class="label">Исполнитель</p><div><p>ИП {fio}</p></div></div>
-      <div class="row"><p class="label">Статус</p><div><p>Индивидуальный предприниматель, применяет налог на профессиональный доход (Федеральный закон № 422-ФЗ)</p></div></div>
+      <div class="row"><p class="label">Исполнитель</p><div><p>{org}</p></div></div>
+      <div class="row"><p class="label">Статус</p><div><p>Индивидуальный предприниматель, {tax}</p></div></div>
       <div class="row"><p class="label">ИНН</p><div><p>{inn}</p></div></div>
-      <div class="row"><p class="label">ОГРНИП</p><div><p>{ogrnip}</p></div></div>
+      {ogrnip}
       <div class="row"><p class="label">Документы</p><div><p><a href="oferta.html">Оферта</a>, <a href="payment.html">оплата и возврат</a>, <a href="privacy.html">политика конфиденциальности</a>.</p></div></div>
     </div>
     <p class="note after">Когда вы пишете нам, мы получаем ваше имя и контакт — только чтобы ответить. Подробнее — в <a href="privacy.html">политике конфиденциальности</a>.</p>
   </div>
-</section>""".format(tg=tg_link(), phone=phone_link(), city=SITE["city"],
-                     fio=SITE["fio"], inn=SITE["inn"], ogrnip=SITE["ogrnip"]))
+</section>""".format(tg=tg_link(), phone=phone_link(), city=SITE["city"], org=SITE["org"],
+                     inn=SITE["inn"], tax=TAX["status"],
+                     ogrnip=og('<div class="row"><p class="label">ОГРНИП</p><div><p>%s</p></div></div>')))
 
 
 def p_payment():
@@ -728,9 +679,8 @@ def p_payment():
     <p class="meta">Редакция от {ed}. Условия дополняют <a href="oferta.html">публичную оферту</a>; при расхождении действует оферта.</p>
 
     <h2>1. Что оплачивается</h2>
-    <p>Фиксированная часть стоимости услуг — 20 000 ₽: лид-магнит, чат-бот, посадочная страница, подбор каналов с рекомендациями и видеоинструкция. Состав и цены по позициям — на странице <a href="services.html">«Услуги и цены»</a>. НДС не облагается: исполнитель применяет налог на профессиональный доход.</p>
-    <p>Переменная часть (10 % чистой прибыли) оплачивается отдельно, только если прибыль получена и исполнитель предъявил требование, — в порядке раздела 4 оферты.</p>
-    <p>Бюджет на трафик исполнителю не платится: заказчик оплачивает рекламные площадки и подрядчиков напрямую.</p>
+    <p>Услуги из списка на странице <a href="services.html">«Услуги»</a> в составе и по стоимости, которые исполнитель и заказчик согласовали до оплаты. Разовые услуги — разово; ведение рекламы, контент и пакеты видео — за каждый месяц. {vat}</p>
+    <p>Рекламный бюджет исполнителю не платится: заказчик вносит его рекламным площадкам напрямую. Исполнитель не принимает эти деньги и не распоряжается ими.</p>
 
     <h2>2. Как оплатить</h2>
     <p>После согласования состава работ исполнитель присылает ссылку на оплату. Оплата проходит на защищённой странице платёжного сервиса ЮKassa (ООО НКО «ЮМани»):</p>
@@ -739,35 +689,29 @@ def p_payment():
       <li>через Систему быстрых платежей (СБП);</li>
       <li>другими способами, которые ЮKassa показывает на странице оплаты.</li>
     </ul>
-    <p>Данные карты вводятся на стороне ЮKassa и исполнителю не передаются. Срок оплаты — 3 банковских дня с момента получения ссылки. Оплата считается произведённой, когда деньги поступили исполнителю.</p>
+    <p>Данные карты вводятся на стороне ЮKassa и исполнителю не передаются. Разовые услуги оплачиваются в течение 3 банковских дней с момента получения ссылки, ежемесячные — за месяц вперёд. Оплата считается произведённой, когда деньги поступили исполнителю.</p>
 
     <h2>3. Чек</h2>
-    <p>На каждую оплату исполнитель формирует чек в приложении «Мой налог» и отправляет его на электронную почту или в мессенджер, указанные при оплате.</p>
+    <p>На каждую оплату исполнитель {receipt} и отправляет его на электронную почту или в мессенджер, указанные при оплате.</p>
 
     <h2>4. Как передаётся результат</h2>
-    <p>Услуги оказываются дистанционно, физической доставки нет. Результат передаётся электронно: ссылки, файлы, доступы к боту и странице, видеоинструкция — по электронной почте или в мессенджере. Срок — до 10 рабочих дней с момента, как заказчик передал материалы для работы; обычно 5–7.</p>
+    <p>Услуги оказываются дистанционно, физической доставки нет. Результат передаётся электронно: документы, файлы, ссылки, доступы, отчёты — по электронной почте или в мессенджере. Срок разовой услуги — до 10 рабочих дней с момента, как заказчик передал материалы и доступы, если в согласованном составе работ не указан другой; он указывается в согласованном составе работ.</p>
     <p>После передачи у заказчика 3 календарных дня, чтобы принять работу или прислать мотивированные замечания. Если за 5 календарных дней ответа нет, услуги считаются принятыми.</p>
 
     <h2>5. Возврат</h2>
-    <p><b>Отказ до начала работы.</b> Если заказчик отказался до того, как передал материалы и исполнитель приступил к работе, оплата возвращается полностью.</p>
-    <p><b>Отказ в процессе.</b> Возвращается оплата за вычетом стоимости уже оказанных услуг — по ценам позиций из таблицы на странице «Услуги и цены» — и документально подтверждённых расходов исполнителя, связанных с заказом.</p>
+    <p><b>Отказ до начала работы.</b> Если заказчик отказался до того, как исполнитель приступил к работе, оплата возвращается полностью.</p>
+    <p><b>Отказ в процессе.</b> Возвращается оплата за вычетом стоимости уже оказанных услуг — по стоимости из согласованного состава работ — и документально подтверждённых расходов исполнителя, связанных с заказом.</p>
+    <p><b>Ежемесячные услуги.</b> Заказчик может отказаться от следующего месяца, предупредив исполнителя не позднее чем за 5 календарных дней до его начала. Если месяц оплачен, но услуги по нему не начаты, оплата возвращается полностью; если начаты — за вычетом фактически оказанного.</p>
     <p><b>Услуги не оказаны по вине исполнителя.</b> Оплата возвращается полностью.</p>
-    <p><b>Не окупилось за 90 дней (п. 6.1 оферты).</b> Возвращается фиксированная часть — 20 000 ₽, — если за 90 календарных дней с даты подписания акта у заказчика не возник экономический эффект, окупающий эту сумму, при одновременном соблюдении условий:</p>
-    <ul>
-      <li>заказчик привлекал трафик по переданным каналам не меньше 45 дней из 90 и потратил на это не меньше 10 000 ₽;</li>
-      <li>отвечал на обращения и заявки не позднее 24 часов с момента поступления;</li>
-      <li>по запросу исполнителя, не чаще раза в 14 дней, передавал статистику рекламных кабинетов и сведения об обращениях;</li>
-      <li>заполнял и возвращал чек-лист внедрения рекомендаций с датами выполнения.</li>
-    </ul>
-    <p>Требование направляется не позднее 10 календарных дней после окончания 90-дневного срока, с подтверждающими документами. Бюджет на трафик и оплата подрядчиков возврату не подлежат: исполнителю они не платились.</p>
+    <p>Рекламный бюджет возврату исполнителем не подлежит: исполнителю он не платился. Вопросы по возврату рекламного баланса заказчик решает с площадкой.</p>
 
     <h2>6. Заявление о возврате</h2>
     <p>Заявление направляется в Telegram {tg} с указанием даты оплаты, суммы и основания. Возврат производится тем же способом, которым была произведена оплата.</p>
 
     <h2>7. Ограничение ответственности</h2>
-    <p>Исполнитель не гарантирует конкретного числа заявок, продаж или иных коммерческих показателей: они зависят от продукта, цены, бюджета на трафик и работы заказчика с обращениями. Гарантия исполнителя — состав и сроки работ по оферте и возврат по п. 6.1.</p>
+    <p>Исполнитель не гарантирует конкретного числа заявок, продаж или иных коммерческих показателей: они зависят от продукта, цены, бюджета и работы заказчика с обращениями. Гарантия исполнителя — состав и сроки работ по оферте.</p>
 
-    {req}""".format(ed=EDITION, tg=tg_link(), req=req()), doc=True)
+    {req}""".format(ed=EDITION, tg=tg_link(), req=req(), vat=TAX["vat_short"], receipt=TAX["receipt"]), doc=True)
 
 
 def p_oferta():
@@ -778,86 +722,82 @@ def p_oferta():
     <p class="meta">Редакция от {ed}. Опубликована по адресу {base}/oferta.html</p>
 
     <h2>1. Общие положения</h2>
-    <p>1.1. Настоящий документ — публичная оферта в смысле п. 2 ст. 437 Гражданского кодекса РФ. Индивидуальный предприниматель {fio}, ИНН {inn}, ОГРНИП {ogrnip}, применяющий специальный налоговый режим «Налог на профессиональный доход» (далее — Исполнитель), предлагает индивидуальным предпринимателям, юридическим лицам и гражданам (далее — Заказчик) заключить договор возмездного оказания маркетинговых услуг (далее — Договор) на условиях ниже.</p>
-    <p>1.2. Акцептом оферты является оплата фиксированной части стоимости услуг по ссылке или счёту, выставленным Исполнителем после согласования заказа (п. 3 ст. 438 ГК РФ). С момента поступления оплаты Договор считается заключённым.</p>
+    <p>1.1. Настоящий документ — публичная оферта в смысле п. 2 ст. 437 Гражданского кодекса РФ. {org}, ИНН {inn}{ogrnip} (далее — Исполнитель), предлагает индивидуальным предпринимателям, юридическим лицам и гражданам (далее — Заказчик) заключить договор возмездного оказания маркетинговых услуг (далее — Договор) на условиях ниже.</p>
+    <p>1.2. Акцептом оферты является оплата услуг по ссылке или счёту, в которых указаны состав работ и стоимость, выставленным Исполнителем после согласования заказа (п. 3 ст. 438 ГК РФ). С момента поступления оплаты Договор считается заключённым.</p>
     <p>1.3. Если Стороны подписали двусторонний договор на те же услуги, отношения регулируются подписанным договором, а оферта применяется в части, им не урегулированной.</p>
     <p>1.4. Услуги приобретаются Заказчиком для предпринимательской деятельности — продвижения его товаров, работ или услуг, — а не для личных, семейных или домашних нужд.</p>
     <p>1.5. Исполнитель вправе изменить оферту, опубликовав новую редакцию на сайте. Новая редакция не распространяется на Договоры, заключённые до её публикации.</p>
 
     <h2>2. Предмет</h2>
-    <p>2.1. Исполнитель оказывает Заказчику услуги маркетингово-аналитического и информационно-консультационного характера: разрабатывает, готовит и передаёт Заказчику материалы, рекомендации и ссылки, относящиеся к возможным каналам продвижения товаров, работ или услуг Заказчика, а Заказчик принимает и оплачивает их.</p>
-    <p>2.2. В состав услуг входят:</p>
+    <p>2.1. Исполнитель оказывает Заказчику услуги маркетингового, аналитического и информационно-консультационного характера, а Заказчик принимает и оплачивает их.</p>
+    <p>2.2. Услуги, которые Заказчик выбирает по отдельности и перечень которых опубликован на странице <a href="services.html">«Услуги»</a>:</p>
     <ul>
-      <li>разработка информационного продукта для конечного пользователя (лид-магнита) в формате PDF;</li>
-      <li>разработка чат-бота;</li>
-      <li>разработка посадочной страницы;</li>
-      <li>подбор каналов продвижения, рекомендации по привлечению трафика, по выбору подрядчика и постановке ему задачи;</li>
-      <li>видеоинструкция по переносу посадочной страницы и чат-бота на ресурсы Заказчика.</li>
+      <li>аудит, стратегия продвижения и аналитика: анализ продукта, аудитории, конкурентов и текущих каналов, настройка учёта заявок, отчёты;</li>
+      <li>платная реклама: контекстная, таргетированная, рекламные посевы в Telegram, реклама у блогеров — создание, настройка и ведение рекламных кампаний;</li>
+      <li>ведение кабинета на маркетплейсе Wildberries: карточки товаров, цены и акции, остатки и поставки, реклама внутри маркетплейса, ответы на отзывы и вопросы покупателей;</li>
+      <li>продакшн вертикального контента: сценарии, съёмка или обработка материала Заказчика, монтаж, субтитры и оформление коротких видео, в том числе рекламных креативов;</li>
+      <li>SMM: контент-план, тексты, оформление и публикации для социальных сетей и мессенджеров;</li>
+      <li>подбор и подключение менеджеров по продажам: работа с заявками Заказчика по согласованному скрипту, учёт в таблице или CRM Заказчика, отчёт по воронке;</li>
+      <li>посадочные страницы, лид-магниты и иные информационные и ИТ-продукты;</li>
+      <li>поисковая оптимизация, работа с отзывами и репутацией;</li>
+      <li>специальные проекты по отдельному согласованию.</li>
     </ul>
-    <p>2.3. Договор не является договором о распространении рекламы, о лидогенерации или агентским договором. Исполнитель не размещает рекламу, не ведёт рекламные кампании, не взаимодействует с площадками от имени Заказчика и не даёт гарантий по трафику, заявкам, клиентам или иным экономическим показателям. Применение рекомендаций и размещение материалов Заказчик выполняет своими силами.</p>
-    <p>2.4. Результаты услуг размещаются и работают на ресурсах Заказчика: его домене, хостинге, учётных записях и аккаунтах. Обращения пользователей поступают Заказчику напрямую, минуя Исполнителя.</p>
-    <p>2.5. Услуги считаются оказанными по факту передачи Заказчику материалов, а не по факту достижения коммерческих показателей.</p>
+    <p>2.3. Исполнитель не гарантирует трафик, заявки, клиентов или иные экономические показатели. Применение рекомендаций и решения по бюджету Заказчик принимает самостоятельно.</p>
+    <p>2.4. Рекламные кабинеты, счётчики, домен, хостинг и аккаунты в социальных сетях регистрируются на Заказчика. Исполнитель работает по доступу, который выдал Заказчик, и не передаёт его третьим лицам. Обращения пользователей поступают Заказчику.</p>
+    <p>2.5. Рекламный бюджет Заказчик вносит рекламным площадкам напрямую. Исполнитель не принимает денежные средства, предназначенные для оплаты рекламы, не перечисляет их площадкам и не заключает с площадками договоры от своего имени.</p>
+    <p>2.6. Услуги считаются оказанными по факту передачи результатов Заказчику либо, для ежемесячных услуг, по факту выполнения работ за месяц, а не по факту достижения коммерческих показателей.</p>
 
     <h2>3. Стоимость и сроки</h2>
-    <p>3.1. Стоимость услуг состоит из фиксированной и переменной частей.</p>
-    <p>3.2. Фиксированная часть — 20 000 (двадцать тысяч) рублей, в том числе: лид-магнит — 6 000 ₽; чат-бот — 5 000 ₽; посадочная страница — 5 000 ₽; подбор каналов и рекомендации — 2 500 ₽; видеоинструкция — 1 500 ₽.</p>
-    <p>3.3. Переменная часть — 10 % чистой прибыли Заказчика за отчётный период, фактически полученной от реализации его товаров или услуг с использованием материалов и рекомендаций Исполнителя. Чистая прибыль — доход Заказчика, уменьшенный на документально подтверждённые расходы, непосредственно связанные с его получением; рассчитывается Заказчиком по данным своего учёта.</p>
-    <p>3.4. Переменная часть является правом Исполнителя, а не его обязательством. Она не создаёт для Исполнителя обязанности обеспечить какой-либо объём трафика, обращений, заявок или клиентов, не является гарантированной и выплачивается, только если прибыль фактически получена и Исполнитель предъявил требование. Непредъявление требования за какой-либо период не лишает Исполнителя права предъявить его за последующие периоды.</p>
-    <p>3.5. Расходы на рекламу, рекламные площадки и сервисы, а также услуги подрядчиков, привлечённых Заказчиком, в стоимость услуг не входят. Заказчик оплачивает их напрямую получателям; через Исполнителя эти деньги не проходят.</p>
-    <p>3.6. Срок оказания услуг — до 10 (десяти) рабочих дней по каждой позиции, считая с даты, когда Заказчик передал материалы и сведения, необходимые для работы.</p>
-    <p>3.7. НДС не облагается (ч. 9 ст. 2 Федерального закона от 27.11.2018 № 422-ФЗ).</p>
+    <p>3.1. Состав, срок и стоимость услуг Стороны согласовывают по каждому заказу: Исполнитель направляет Заказчику коммерческое предложение или счёт, в которых указаны перечень услуг, срок и стоимость. Согласованная стоимость в ходе исполнения не меняется без согласия Заказчика.</p>
+    <p>3.2. Срок разовой услуги — до 10 (десяти) рабочих дней, считая с даты, когда Заказчик передал материалы, сведения и доступы, необходимые для работы, если в согласованном составе работ не указан другой срок. Ежемесячные услуги оказываются в течение календарного месяца, считая с даты начала оплаченного периода.</p>
+    <p>3.3. Расходы на рекламу, рекламные площадки, сервисы, домен и хостинг, а также услуги подрядчиков, привлечённых Заказчиком, в стоимость услуг не входят. Заказчик оплачивает их напрямую получателям; через Исполнителя эти деньги не проходят.</p>
+    <p>3.4. {vat_oferta}</p>
 
     <h2>4. Порядок оплаты</h2>
-    <p>4.1. Фиксированная часть оплачивается полностью в течение 3 (трёх) банковских дней с момента, когда Исполнитель выставил ссылку или счёт на оплату.</p>
+    <p>4.1. Разовые услуги оплачиваются полностью в течение 3 (трёх) банковских дней с момента, когда Исполнитель выставил ссылку или счёт на оплату. Ежемесячные услуги оплачиваются за месяц вперёд, не позднее дня, с которого начинается месяц оказания услуг.</p>
     <p>4.2. Оплата производится безналично: банковской картой, через СБП или иным способом, доступным на странице платёжного сервиса ЮKassa, либо переводом на счёт Исполнителя.</p>
     <p>4.3. Оплата считается произведённой в момент поступления денежных средств Исполнителю.</p>
-    <p>4.4. Переменная часть оплачивается в течение 3 (трёх) банковских дней с момента выставления Исполнителем требования и счёта за отчётный период.</p>
-    <p>4.5. На каждую полученную сумму Исполнитель формирует чек в приложении «Мой налог» и передаёт его Заказчику по электронной почте или в мессенджере.</p>
+    <p>4.4. На каждую полученную сумму Исполнитель {receipt} и передаёт его Заказчику по электронной почте или в мессенджере.</p>
 
     <h2>5. Права и обязанности Сторон</h2>
-    <p>5.1. Исполнитель обязуется: оказать услуги надлежащего качества в объёме и сроки по оферте; оформлять и направлять Заказчику акт сдачи-приёмки; по запросу Заказчика сообщать о ходе работы; не передавать третьим лицам полученные от Заказчика доступы и пароли; самостоятельно уплачивать налог с вознаграждения.</p>
-    <p>5.2. Исполнитель вправе: получать от Заказчика сведения, без которых качественно оказать услуги невозможно; самостоятельно выбирать методы работы с учётом пожеланий Заказчика; привлекать третьих лиц, отвечая за них как за себя и не повышая стоимость услуг; приостановить работу при просрочке оплаты; после завершения работ и при отсутствии замечаний использовать результаты в портфолио.</p>
-    <p>5.3. Лица, которых для размещения рекламы и работы с трафиком привлекает Заказчик, в том числе по рекомендации Исполнителя, привлекаются Заказчиком от своего имени и за свой счёт. Исполнитель за их действия не отвечает, в расчётах с ними не участвует и вознаграждения от них не получает.</p>
-    <p>5.4. Заказчик обязуется: своевременно оплачивать услуги; своевременно передавать материалы, сведения, доступы и согласования; принимать оказанные услуги в порядке раздела 6.</p>
-    <p>5.5. Заказчик вправе: получать сведения о ходе работы; заявлять обоснованные замечания; отказаться от Договора, оплатив фактически оказанные услуги и понесённые Исполнителем расходы (раздел 7).</p>
-    <p>5.6. Достоверность и законность сведений о товарах и услугах Заказчика, используемых в материалах, обеспечивает Заказчик. Исполнитель не проводит правовую экспертизу материалов.</p>
+    <p>5.1. Исполнитель обязуется: оказать услуги надлежащего качества в объёме и сроки по оферте; оформлять и направлять Заказчику акт оказанных услуг; по запросу Заказчика сообщать о ходе работы; не передавать третьим лицам полученные от Заказчика доступы и пароли; самостоятельно уплачивать налоги со своих доходов.</p>
+    <p>5.2. Исполнитель вправе: получать от Заказчика сведения, без которых качественно оказать услуги невозможно; самостоятельно выбирать методы работы с учётом пожеланий Заказчика; привлекать третьих лиц, отвечая за них как за себя и не повышая стоимость услуг; приостановить работу при просрочке оплаты; после завершения работ и при отсутствии возражений Заказчика использовать результаты в портфолио.</p>
+    <p>5.3. Заказчик обязуется: своевременно оплачивать услуги; своевременно передавать материалы, сведения, доступы и согласования; отвечать на обращения клиентов, поступающие по результатам услуг; принимать оказанные услуги в порядке раздела 6.</p>
+    <p>5.4. Заказчик вправе: получать сведения о ходе работы; заявлять обоснованные замечания; отказаться от Договора, оплатив фактически оказанные услуги и понесённые Исполнителем расходы (раздел 7).</p>
+    <p>5.5. Достоверность и законность сведений о товарах и услугах Заказчика, используемых в материалах и рекламе, обеспечивает Заказчик, в том числе наличие необходимых лицензий и разрешений. Исполнитель вправе отказаться от размещения материалов, нарушающих закон или правила рекламной площадки. Обязанности рекламодателя, включая маркировку рекламы, определяются законодательством о рекламе; Стороны согласуют их распределение до запуска кампании.</p>
 
     <h2>6. Сдача и приёмка</h2>
-    <p>6.1. Передав результаты, Исполнитель направляет Заказчику акт оказанных услуг по электронной почте или в мессенджере.</p>
+    <p>6.1. Передав результат разовой услуги, Исполнитель направляет Заказчику акт оказанных услуг по электронной почте или в мессенджере. По ежемесячным услугам акт направляется по итогам месяца, а отчёт о ходе работы — раз в две недели.</p>
     <p>6.2. В течение 3 (трёх) календарных дней Заказчик возвращает подписанный акт либо мотивированный отказ с перечнем недостатков. По обоснованным замечаниям Стороны согласуют перечень и сроки доработок.</p>
     <p>6.3. Если за 5 (пять) календарных дней с даты направления акта Исполнитель не получил ни подписанного акта, ни мотивированного отказа, услуги считаются принятыми без замечаний.</p>
 
     <h2>7. Возврат денежных средств</h2>
-    <p>7.1. При отказе Заказчика от Договора до начала оказания услуг оплата возвращается полностью. При отказе в процессе — за вычетом стоимости фактически оказанных услуг по ценам п. 3.2 и документально подтверждённых расходов Исполнителя, связанных с исполнением Договора. Если услуги не оказаны по вине Исполнителя, оплата возвращается полностью.</p>
-    <p>7.2. Исполнитель обязуется вернуть Заказчику фиксированную часть стоимости услуг — 20 000 (двадцать тысяч) рублей, — если за 90 (девяносто) календарных дней с даты подписания акта у Заказчика не возникнет экономического эффекта, окупающего эту сумму, при одновременном соблюдении Заказчиком условий:</p>
-    <ul>
-      <li>в течение 90-дневного срока Заказчик размещал рекламу или иным образом привлекал трафик по переданным каналам суммарно не менее 45 (сорока пяти) дней, израсходовав на это не менее 10 000 (десяти тысяч) рублей;</li>
-      <li>Заказчик отвечал на поступившие обращения и заявки не позднее 24 (двадцати четырёх) часов с момента их поступления;</li>
-      <li>Заказчик по запросу Исполнителя, не чаще одного раза в 14 (четырнадцать) календарных дней, предоставлял статистику рекламных кабинетов, сведения о количестве обращений и о результатах их обработки;</li>
-      <li>Заказчик заполнял и возвращал Исполнителю чек-лист внедрения рекомендаций с датами их фактического выполнения; форму чек-листа Исполнитель передаёт вместе с рекомендациями.</li>
-    </ul>
-    <p>7.3. Требование о возврате по п. 7.2 направляется не позднее 10 (десяти) календарных дней после окончания 90-дневного срока, с приложением документов, подтверждающих соблюдение условий. Расходы Заказчика на рекламу, площадки и подрядчиков возврату не подлежат: Исполнителю они не уплачивались.</p>
+    <p>7.1. При отказе Заказчика от Договора до начала оказания услуг оплата возвращается полностью. При отказе в процессе — за вычетом стоимости фактически оказанных услуг по стоимости, согласованной по п. 3.1, и документально подтверждённых расходов Исполнителя, связанных с исполнением Договора. Если услуги не оказаны по вине Исполнителя, оплата возвращается полностью.</p>
+    <p>7.2. От ежемесячной услуги Заказчик вправе отказаться, уведомив Исполнителя не позднее чем за 5 (пять) календарных дней до начала следующего месяца. Если месяц оплачен, но оказание услуг по нему не начато, оплата возвращается полностью; если начато — за вычетом фактически оказанного объёма.</p>
+    <p>7.3. Рекламный бюджет Исполнителем не принимается и возврату Исполнителем не подлежит.</p>
     <p>7.4. Возврат производится тем же способом, которым была произведена оплата, либо на счёт, указанный Заказчиком. Порядок подачи заявления — на странице <a href="payment.html">«Оплата и возврат»</a>.</p>
 
     <h2>8. Ответственность</h2>
-    <p>8.1. При нарушении обязательств возмещается прямой реальный ущерб.</p>
-    <p>8.2. За просрочку оплаты более чем на 3 (три) рабочих дня Заказчик по письменному требованию уплачивает пеню 0,1 % от неоплаченной суммы за каждый день просрочки. За просрочку оказания услуг Исполнитель по письменному требованию уплачивает неустойку 0,1 % от стоимости просроченной услуги за день, но не более 10 % стоимости услуг.</p>
+    <p>8.1. При нарушении обязательств возмещается прямой реальный ущерб. Упущенная выгода не возмещается.</p>
+    <p>8.2. За просрочку оплаты более чем на 3 (три) рабочих дня Заказчик по письменному требованию уплачивает пеню 0,1 % от неоплаченной суммы за каждый день просрочки. За просрочку оказания услуг Исполнитель по письменному требованию уплачивает неустойку 0,1 % от стоимости просроченной услуги за день, но не более 10 % её стоимости.</p>
     <p>8.3. Стороны освобождаются от ответственности за неисполнение обязательств вследствие обстоятельств непреодолимой силы при условии незамедлительного уведомления другой Стороны. Если такие обстоятельства длятся дольше 10 (десяти) дней, любая Сторона вправе отказаться от Договора, произведя взаиморасчёт.</p>
+    <p>8.4. Исполнитель не отвечает за блокировку и ограничение рекламных аккаунтов, отклонение объявлений и изменение правил и цен рекламных площадок, если они не вызваны нарушением со стороны Исполнителя.</p>
 
     <h2>9. Конфиденциальность и персональные данные</h2>
     <p>9.1. Сведения о деятельности другой Стороны, полученные при исполнении Договора, конфиденциальны в течение срока Договора и 3 (трёх) лет после его прекращения, кроме сведений, которые общедоступны или должны быть раскрыты по закону.</p>
-    <p>9.2. Оператором персональных данных пользователей посадочной страницы и чат-бота, размещённых на ресурсах Заказчика, является Заказчик. Исполнитель эти данные не получает, не хранит и не обрабатывает по поручению Заказчика.</p>
+    <p>9.2. Оператором персональных данных клиентов Заказчика, поступающих через страницу, рекламные кабинеты и формы Заказчика, является Заказчик. Если для оказания услуг Исполнителю доступны такие данные, он обрабатывает их по поручению Заказчика, только в целях оказания услуг, обеспечивает их конфиденциальность и безопасность и не передаёт третьим лицам. Отдельное поручение Исполнитель оформляет по запросу Заказчика.</p>
     <p>9.3. Персональные данные самого Заказчика и его представителей Исполнитель обрабатывает в соответствии с <a href="privacy.html">Политикой конфиденциальности</a>.</p>
 
     <h2>10. Срок действия, расторжение и споры</h2>
     <p>10.1. Договор действует с момента акцепта до полного исполнения обязательств.</p>
     <p>10.2. Любая Сторона вправе расторгнуть Договор, письменно уведомив другую Сторону не менее чем за 10 (десять) дней, с проведением взаиморасчётов по разделу 7.</p>
     <p>10.3. Документы и сообщения, которыми Стороны обмениваются по электронной почте и в мессенджерах по контактам, указанным при заказе, имеют юридическую силу (п. 2 ст. 434 ГК РФ).</p>
-    <p>10.4. Споры разрешаются переговорами; претензионный порядок обязателен, срок ответа на претензию — 10 (десять) дней. При недостижении согласия спор передаётся в суд по месту нахождения Заказчика.</p>
+    <p>10.4. Споры разрешаются переговорами; претензионный порядок обязателен, срок ответа на претензию — 10 (десять) дней. При недостижении согласия спор передаётся в суд по месту нахождения Ответчика, а споры между предпринимателями и организациями — в арбитражный суд по месту нахождения Исполнителя.</p>
     <p>10.5. Во всём, что не урегулировано офертой, Стороны руководствуются законодательством РФ.</p>
 
     <h2>11. Реквизиты Исполнителя</h2>
-    {req}""".format(ed=EDITION, base=SITE["base"], fio=SITE["fio"], inn=SITE["inn"], ogrnip=SITE["ogrnip"], req=req()), doc=True)
+    {req}""".format(ed=EDITION, base=SITE["base"], org=SITE["org"], inn=SITE["inn"], ogrnip=og(", ОГРНИП %s"),
+                    req=req(), vat_oferta=TAX["vat_oferta"], receipt=TAX["receipt"]), doc=True)
 
 
 def p_privacy():
@@ -868,16 +808,16 @@ def p_privacy():
     <p class="meta">Редакция от {ed}. Разработана в соответствии с Федеральным законом от 27.07.2006 № 152-ФЗ «О персональных данных».</p>
 
     <h2>1. Кто обрабатывает данные</h2>
-    <p>Оператор — индивидуальный предприниматель {fio}, ИНН {inn}, ОГРНИП {ogrnip} (далее — Оператор). Связаться по вопросам персональных данных: Telegram {tg}, телефон {phone}.</p>
+    <p>Оператор — {org}, ИНН {inn}{ogrnip} (далее — Оператор). Связаться по вопросам персональных данных: Telegram {tg}, телефон {phone}.</p>
 
     <h2>2. Что собирает сайт</h2>
     <p>Сайт не содержит форм, не устанавливает рекламные и аналитические cookie и не подключает счётчики посещений. Шрифты загружаются с того же сервера, что и сайт. Технические журналы веб-сервера (IP-адрес, время запроса, браузер) ведёт хостинг-провайдер для обеспечения работы сайта.</p>
-    <p>Оператор получает персональные данные, только когда вы сами обращаетесь к нему — пишете в мессенджер или на почту, звоните — или оплачиваете услуги.</p>
+    <p>Оператор получает персональные данные, только когда вы сами обращаетесь к нему — пишете в мессенджер, звоните — или оплачиваете услуги.</p>
 
     <h2>3. Какие данные и зачем</h2>
     <ul>
-      <li><b>Ответ на обращение и консультация:</b> имя, телефон, адрес электронной почты, имя пользователя в мессенджере, содержание переписки.</li>
-      <li><b>Заключение и исполнение договора:</b> ФИО, наименование организации или ИП, ИНН, контактные данные, сведения о вашем бизнесе, нужные для работы.</li>
+      <li><b>Ответ на обращение и консультация:</b> имя, телефон, имя пользователя в мессенджере, содержание переписки.</li>
+      <li><b>Заключение и исполнение договора:</b> ФИО, наименование организации или ИП, ИНН, контактные данные, сведения о вашем бизнесе, нужные для работы, доступы к рекламным кабинетам, которые вы выдаёте для оказания услуг.</li>
       <li><b>Приём оплаты и формирование чека:</b> сумма, дата и назначение платежа, адрес электронной почты или телефон для отправки чека.</li>
     </ul>
     <p>Специальные категории персональных данных и биометрические данные не обрабатываются.</p>
@@ -886,10 +826,10 @@ def p_privacy():
     <p>Согласие субъекта персональных данных (п. 1 ч. 1 ст. 6 Закона № 152-ФЗ); заключение и исполнение договора, стороной которого является субъект (п. 5 ч. 1 ст. 6); исполнение обязанностей, возложенных налоговым законодательством (п. 2 ч. 1 ст. 6).</p>
 
     <h2>5. Платежи</h2>
-    <p>Оплата проходит через платёжный сервис ЮKassa (ООО НКО «ЮМани»). Данные банковской карты вводятся на стороне ЮKassa и Оператору не передаются. Оператор получает от ЮKassa только сведения о факте платежа. Сведения о расчётах передаются в ФНС России через приложение «Мой налог», как этого требует Закон № 422-ФЗ.</p>
+    <p>Оплата проходит через платёжный сервис ЮKassa (ООО НКО «ЮМани»). Данные банковской карты вводятся на стороне ЮKassa и Оператору не передаются. Оператор получает от ЮKassa только сведения о факте платежа. Сведения о расчётах передаются в ФНС России в порядке, который требует налоговое законодательство.</p>
 
     <h2>6. Как данные хранятся и защищаются</h2>
-    <p>Оператор принимает правовые, организационные и технические меры защиты: доступ к данным есть только у Оператора, учётные записи защищены паролями и двухфакторной аутентификацией. Данные не продаются и не передаются третьим лицам, кроме случаев, указанных в разделе 5, и случаев, предусмотренных законом.</p>
+    <p>Оператор принимает правовые, организационные и технические меры защиты: доступ к данным есть только у Оператора, учётные записи защищены паролями. Данные не продаются и не передаются третьим лицам, кроме случаев, указанных в разделе 5, и случаев, предусмотренных законом.</p>
     <p>Сроки хранения: переписка, не приведшая к договору, — не более 1 года с последнего сообщения; данные по договору — в течение срока его действия и 5 лет после, как требует налоговое законодательство. По истечении срока данные удаляются.</p>
 
     <h2>7. Ваши права</h2>
@@ -899,7 +839,8 @@ def p_privacy():
     <h2>8. Изменения</h2>
     <p>Оператор может обновлять политику. Действующая редакция всегда опубликована на этой странице.</p>
 
-    {req}""".format(ed=EDITION, fio=SITE["fio"], inn=SITE["inn"], ogrnip=SITE["ogrnip"], tg=tg_link(), phone=phone_link(), req=req()), doc=True)
+    {req}""".format(ed=EDITION, org=SITE["org"], inn=SITE["inn"], ogrnip=og(", ОГРНИП %s"), tg=tg_link(),
+                    phone=phone_link(), req=req()), doc=True)
 
 
 def p_consent():
@@ -909,7 +850,7 @@ def p_consent():
         """<h1>Согласие на обработку персональных данных</h1>
     <p class="meta">Редакция от {ed}</p>
 
-    <p>Обращаясь к Оператору по телефону, электронной почте или в мессенджере, а также оплачивая услуги, я свободно, своей волей и в своём интересе даю согласие {fio_dat}, ИНН {inn}, ОГРНИП {ogrnip} (далее — Оператор), на обработку моих персональных данных на следующих условиях.</p>
+    <p>Обращаясь к Оператору по телефону или в мессенджере, а также оплачивая услуги, я свободно, своей волей и в своём интересе даю согласие {org_dat}, ИНН {inn}{ogrnip} (далее — Оператор), на обработку моих персональных данных на следующих условиях.</p>
 
     <h2>1. Какие данные</h2>
     <p>Имя, фамилия и отчество; номер телефона; адрес электронной почты; имя пользователя в мессенджере; наименование организации или ИП и ИНН; содержание переписки и сведения о моём бизнесе, которые я сообщаю сам.</p>
@@ -925,12 +866,12 @@ def p_consent():
 
     <p>Я подтверждаю, что ознакомлен(а) с <a href="privacy.html">Политикой обработки персональных данных</a>.</p>
 
-    {req}""".format(ed=EDITION, fio_dat="индивидуальному предпринимателю Андрюшину Андрею Вячеславовичу",
-                    inn=SITE["inn"], ogrnip=SITE["ogrnip"], tg=tg_link(), req=req()), doc=True)
+    {req}""".format(ed=EDITION, org_dat=SITE["org_dat"], inn=SITE["inn"], ogrnip=og(", ОГРНИП %s"),
+                    tg=tg_link(), req=req()), doc=True)
 
 
 PAGES = {
-    "index": p_index, "services": p_services, "how": p_how, "works": p_works,
+    "index": p_index, "services": p_services, "how": p_how,
     "contact": p_contact, "payment": p_payment, "oferta": p_oferta,
     "privacy": p_privacy, "consent": p_consent,
 }
@@ -943,7 +884,7 @@ def main():
             f.write(html)
         print("  %s.html" % slug)
     if TODO:
-        print("\n⚠ не заполнено в SITE: %s — ЮKassa без этого сайт не примет"
+        print("\n⚠ не заполнено в SITE: %s — на странице стоит заглушка, ЮKassa без этого сайт не примет"
               % ", ".join(sorted(set(TODO))))
         return 1
     return 0

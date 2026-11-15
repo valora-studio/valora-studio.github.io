@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Как работаем — Valora</title>
-<meta name="description" content="От первого разговора до работающей связки: шаги, сроки и что нужно от вас.">
+<meta name="description" content="От первого разговора до отчёта по рекламе: шаги, сроки и что нужно от вас.">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="ru_RU">
 <meta property="og:site_name" content="Valora">
 <meta property="og:title" content="Как работаем — Valora">
-<meta property="og:description" content="От первого разговора до работающей связки: шаги, сроки и что нужно от вас.">
+<meta property="og:description" content="От первого разговора до отчёта по рекламе: шаги, сроки и что нужно от вас.">
 <meta property="og:url" content="https://valora-studio.github.io/how.html">
 <meta property="og:image" content="https://valora-studio.github.io/img/og.jpg">
 <meta property="og:image:width" content="1200">
@@ -19,31 +19,31 @@
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="img/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="preload" href="fonts/Jost-cyr-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Unbounded-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/GolosText-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <script>document.documentElement.classList.add('js')</script>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<header class="top">
+<div class="progress" aria-hidden="true"></div>
+<header class="top top--solid">
   <div class="wrap">
-    <a class="brand" href="index.html"><svg role="img" aria-label="Valora" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5364.0 784.0"><g transform="translate(42.0 742.0) scale(1 -1)" fill="currentColor"><path transform="translate(0.0 0)" d="M330 158 100 700H5L330 -35L655 700H560Z"/><path transform="translate(960.0 0)" d="M147 210H517L487 290H177ZM330 542 450 260 458 240 560 0H655L330 735L5 0H100L204 246L212 264Z"/><path transform="translate(1920.0 0)" d="M80 700V0H440V80H165V700Z"/><path transform="translate(2670.0 0)" d="M130 350Q130 429 164.5 491.0Q199 553 259.0 589.0Q319 625 395 625Q472 625 531.5 589.0Q591 553 625.5 491.0Q660 429 660 350Q660 271 625.5 209.0Q591 147 531.5 111.0Q472 75 395 75Q319 75 259.0 111.0Q199 147 164.5 209.0Q130 271 130 350ZM40 350Q40 274 66.5 208.0Q93 142 141.0 93.5Q189 45 254.0 17.5Q319 -10 395 -10Q472 -10 536.5 17.5Q601 45 649.0 93.5Q697 142 723.5 208.0Q750 274 750 350Q750 427 723.5 492.5Q697 558 649.0 606.5Q601 655 536.5 682.5Q472 710 395 710Q319 710 254.0 682.5Q189 655 141.0 606.5Q93 558 66.5 492.5Q40 427 40 350Z"/><path transform="translate(3760.0 0)" d="M205 345 445 0H550L300 345ZM80 700V0H165V700ZM127 625H270Q315 625 349.5 609.0Q384 593 403.5 563.0Q423 533 423 490Q423 447 403.5 417.0Q384 387 349.5 371.0Q315 355 270 355H127V280H270Q338 280 391.5 305.5Q445 331 476.5 378.5Q508 426 508 490Q508 555 476.5 602.0Q445 649 391.5 674.5Q338 700 270 700H127Z"/><path transform="translate(4620.0 0)" d="M147 210H517L487 290H177ZM330 542 450 260 458 240 560 0H655L330 735L5 0H100L204 246L212 264Z"/></g></svg>
-</a>
+    <a class="brand" href="index.html" aria-label="Valora, на главную"><span class="brand__mark">VALORA</span></a>
     <button class="burger" type="button" aria-expanded="false" aria-controls="nav">Меню</button>
     <nav class="nav" id="nav">
       <a href="index.html">Главная</a>
-      <a href="services.html">Услуги и цены</a>
+      <a href="services.html">Услуги</a>
       <a href="how.html" aria-current="page">Как работаем</a>
-      <a href="works.html">Работы</a>
       <a href="contact.html">Контакты</a>
     </nav>
     <a class="btn" href="https://t.me/yamizxcq" target="_blank" rel="noopener">Написать в Telegram</a>
   </div>
 </header>
-<main>
+<main class="page-top">
 <section class="hero">
   <div class="wrap">
-    <h1>Как работаем</h1>
-    <p class="lead">Вы&nbsp;занимаетесь продуктом, мы&nbsp;— тем, куда придёт трафик. От&nbsp;разговора до&nbsp;передачи материалов&nbsp;— обычно полторы недели, из&nbsp;них 5–7&nbsp;рабочих дней на&nbsp;саму сборку.</p>
+    <h1 data-split>Как работаем</h1>
+    <p class="lead">Вы&nbsp;занимаетесь продуктом, мы&nbsp;— тем, откуда придут клиенты. От&nbsp;разговора до&nbsp;запущенной рекламы обычно две-три недели, если материалы и&nbsp;доступы пришли вовремя.</p>
   </div>
 </section>
 
@@ -52,31 +52,27 @@
     <div class="steps">
       <div class="step">
         <div><h3>Разговор</h3><p class="when">15–20&nbsp;минут, бесплатно</p></div>
-        <p>Что продаёте, кому, по&nbsp;какой цене и&nbsp;откуда сейчас приходят клиенты. Скажем, подходит ли&nbsp;связка вашей нише, и&nbsp;если нет&nbsp;— не&nbsp;будем её&nbsp;продавать.</p>
+        <p>Что продаёте, кому, по&nbsp;какой цене и&nbsp;откуда клиенты приходят сейчас. Скажем, чем можем помочь, а&nbsp;если ничем&nbsp;— не&nbsp;будем продавать то, что вам не&nbsp;нужно.</p>
       </div>
       <div class="step">
-        <div><h3>Оплата</h3><p class="when">в&nbsp;течение 3&nbsp;дней</p></div>
-        <p>Согласуем состав работ и&nbsp;присылаем ссылку на&nbsp;оплату через ЮKassa. Оплата&nbsp;— это принятие оферты; нужен подписанный договор&nbsp;— пришлём.</p>
+        <div><h3>Аудит</h3><p class="when">до&nbsp;7&nbsp;рабочих дней</p></div>
+        <p>Смотрим продукт, аудиторию, конкурентов и&nbsp;текущие каналы. Показываем документ с&nbsp;планом: что делаем, в&nbsp;каком порядке и&nbsp;какой нужен бюджет. С&nbsp;этого шага можно начать и&nbsp;остановиться: аудит остаётся у&nbsp;вас.</p>
       </div>
       <div class="step">
-        <div><h3>Материалы от&nbsp;вас</h3><p class="when">с&nbsp;этого момента идёт срок</p></div>
-        <p>Описание продукта и&nbsp;цен, фото, домен, аккаунт для бота. Короткий бриф пришлём сами&nbsp;— заполнить его можно за&nbsp;вечер.</p>
+        <div><h3>Согласование и&nbsp;оплата</h3><p class="when">в&nbsp;течение 3&nbsp;дней</p></div>
+        <p>Выбираете, что берёте дальше, мы&nbsp;согласуем состав работ и&nbsp;стоимость и&nbsp;присылаем ссылку на&nbsp;оплату через ЮKassa. Оплата&nbsp;— это принятие оферты; нужен подписанный договор&nbsp;— пришлём.</p>
       </div>
       <div class="step">
-        <div><h3>Сборка</h3><p class="when">5–7&nbsp;рабочих дней, по&nbsp;оферте до&nbsp;10</p></div>
-        <p>Пишем гид, собираем страницу и&nbsp;бота, подбираем каналы и&nbsp;готовим рекомендации. Промежуточные версии показываем&nbsp;— править по&nbsp;ходу проще, чем в&nbsp;конце.</p>
+        <div><h3>Сборка</h3><p class="when">7–10&nbsp;рабочих дней</p></div>
+        <p>Пишем тексты, собираем страницу и&nbsp;лид-магнит, настраиваем кабинеты и&nbsp;объявления. Промежуточные версии показываем: править по&nbsp;ходу проще, чем в&nbsp;конце.</p>
       </div>
       <div class="step">
-        <div><h3>Передача</h3><p class="when">3&nbsp;дня на&nbsp;приёмку</p></div>
-        <p>Страница переезжает на&nbsp;ваш домен, бот&nbsp;— на&nbsp;ваш аккаунт, заявки идут вам. Вместе с&nbsp;этим&nbsp;— рекомендации, чек-лист внедрения и&nbsp;видеоинструкция.</p>
+        <div><h3>Запуск</h3><p class="when">ваш бюджет, платите площадке напрямую</p></div>
+        <p>Включаем рекламу в&nbsp;один-два канала. Первые две недели смотрим на&nbsp;цифры каждый день: на&nbsp;старте ошибки обходятся дороже всего.</p>
       </div>
       <div class="step">
-        <div><h3>Запуск трафика</h3><p class="when">ваш бюджет, от&nbsp;10&nbsp;000&nbsp;₽</p></div>
-        <p>Вы&nbsp;запускаете два-три канала&nbsp;— сами или через подрядчика, которому ставите задачу по&nbsp;нашим рекомендациям. Деньги на&nbsp;трафик идут площадкам напрямую.</p>
-      </div>
-      <div class="step">
-        <div><h3>Сопровождение</h3><p class="when">первые 90&nbsp;дней</p></div>
-        <p>Раз в&nbsp;две недели смотрим статистику и&nbsp;правим то, что не&nbsp;работает: каналы, тексты, сценарий бота.</p>
+        <div><h3>Отчёты и&nbsp;правки</h3><p class="when">раз в&nbsp;две недели</p></div>
+        <p>Расход, заявки, цена одной заявки, что меняем и&nbsp;почему. Всё лежит на&nbsp;ваших аккаунтах: продолжать с&nbsp;нами необязательно.</p>
       </div>
     </div>
   </div>
@@ -89,44 +85,44 @@
     </div>
     <div class="faq">
       <details>
-        <summary>Чем это отличается от&nbsp;обычной рекламы?</summary>
-        <div><p>Реклама&nbsp;— это трафик: вы&nbsp;платите за&nbsp;показы и&nbsp;клики. Мы&nbsp;делаем то, куда этот трафик приходит,&nbsp;— страницу, гид и&nbsp;бота, которые превращают посетителей в&nbsp;контакты. Трафик вы&nbsp;покупаете сами, напрямую у&nbsp;площадок или подрядчиков; мы&nbsp;подсказываем где и&nbsp;как поставить задачу.</p></div>
+        <summary>С&nbsp;какого рекламного бюджета имеет смысл начинать?</summary>
+        <div><p>Назвать сумму до&nbsp;аудита было бы&nbsp;гаданием: она зависит от&nbsp;ниши, среднего чека и&nbsp;региона. Скажем только, что очень маленький бюджет редко набирает достаточно показов, чтобы по&nbsp;нему можно было что-то решить. На&nbsp;аудите посчитаем конкретно.</p></div>
       </details>
       <details>
-        <summary>Какие ниши подходят?</summary>
-        <div><p>Услуги с&nbsp;консультацией перед покупкой: психологи и&nbsp;коучи, юристы, мебель и&nbsp;кухни на&nbsp;заказ, ремонт, недвижимость, онлайн-школы. Хуже всего&nbsp;— импульсные покупки с&nbsp;низким чеком: там гид лишний, человек и&nbsp;так купит или уйдёт.</p></div>
+        <summary>Кабинеты и&nbsp;сайт будут оформлены на&nbsp;меня?</summary>
+        <div><p>Да. Рекламные кабинеты, счётчики, домен и&nbsp;страница создаются на&nbsp;ваши аккаунты, мы&nbsp;работаем по&nbsp;выданному доступу. Если решите закончить сотрудничество, всё останется у&nbsp;вас.</p></div>
       </details>
       <details>
-        <summary>Что нужно от&nbsp;меня?</summary>
-        <div><p>Описание продукта и&nbsp;цен, фото или разрешение взять стоковые, домен и&nbsp;аккаунт в&nbsp;Telegram для бота. Если домена нет&nbsp;— поможем выбрать и&nbsp;подключить. Сроки идут с&nbsp;момента, как всё это у&nbsp;нас.</p></div>
+        <summary>Деньги на&nbsp;рекламу платить вам?</summary>
+        <div><p>Нет. Бюджет вы&nbsp;вносите площадке сами. Мы&nbsp;не принимаем его и&nbsp;не переводим дальше&nbsp;— в&nbsp;нашей оплате только работа агентства.</p></div>
       </details>
       <details>
         <summary>Сколько будет заявок?</summary>
-        <div><p>Честно&nbsp;— не&nbsp;знаем заранее, и&nbsp;никто не&nbsp;знает. Это зависит от&nbsp;бюджета на&nbsp;трафик, ниши, чека и&nbsp;того, как быстро вы&nbsp;отвечаете. Поэтому цифр не&nbsp;обещаем, а&nbsp;в первые недели вместе смотрим статистику и&nbsp;правим то, что не&nbsp;работает.</p></div>
+        <div><p>Заранее не&nbsp;знает никто, и&nbsp;цифр мы&nbsp;не обещаем. Заявки зависят от&nbsp;бюджета, ниши, чека и&nbsp;от того, как быстро вы&nbsp;отвечаете. Зато раз в&nbsp;две недели показываем, сколько их&nbsp;пришло, откуда и&nbsp;во сколько каждая обошлась.</p></div>
       </details>
       <details>
-        <summary>Что за&nbsp;переменная часть?</summary>
-        <div><p>Небольшой процент с&nbsp;продаж, которые пришли через наши материалы: 10&nbsp;% чистой прибыли по&nbsp;вашему собственному учёту. Нет продаж&nbsp;— нет и&nbsp;его.</p></div>
+        <summary>С&nbsp;какими нишами работаете?</summary>
+        <div><p>Лучше всего подходят услуги с&nbsp;консультацией перед покупкой: психологи и&nbsp;коучи, юристы, ремонт, мебель на&nbsp;заказ, недвижимость, онлайн-школы, локальные сервисы. Не&nbsp;берёмся за&nbsp;товары с&nbsp;копеечным чеком, где реклама не&nbsp;окупится, и&nbsp;за то, что нельзя рекламировать по&nbsp;закону.</p></div>
       </details>
       <details>
-        <summary>Можно ли&nbsp;без переменной части?</summary>
-        <div><p>Напишите&nbsp;— обсудим. Базовые условия описаны в&nbsp;оферте, отдельные договорённости фиксируем в&nbsp;договоре.</p></div>
+        <summary>Можно взять только часть услуг?</summary>
+        <div><p>Да, каждая услуга продаётся отдельно. Например, только аудит: он&nbsp;остаётся у&nbsp;вас, и&nbsp;по нему можно работать с&nbsp;любым подрядчиком.</p></div>
       </details>
       <details>
-        <summary>А&nbsp;если не&nbsp;понравится результат?</summary>
-        <div><p>После передачи у&nbsp;вас три дня, чтобы принять работу или прислать замечания. Доработки по&nbsp;обоснованным замечаниям делаем. Если откажетесь от&nbsp;услуг до&nbsp;начала работы&nbsp;— вернём оплату полностью, в&nbsp;процессе&nbsp;— за&nbsp;вычетом того, что уже сделано, по&nbsp;ценам из&nbsp;таблицы.</p></div>
+        <summary>А&nbsp;если результат не&nbsp;понравится?</summary>
+        <div><p>После передачи у&nbsp;вас три дня, чтобы принять работу или прислать замечания. Обоснованные замечания дорабатываем. Если откажетесь до&nbsp;начала работы, вернём оплату полностью, в&nbsp;процессе&nbsp;— за&nbsp;вычетом того, что уже сделано, по&nbsp;стоимости из&nbsp;согласованного состава работ.</p></div>
       </details>
     </div>
   </div>
 </section>
 
-<section class="band band--ink cta">
+<section class="cta">
   <div class="wrap">
-    <h2>Начнём с&nbsp;разговора</h2>
-    <p class="lead">Пятнадцать минут, чтобы понять, есть ли&nbsp;смысл. Ничего не&nbsp;обязывает.</p>
-    <div class="actions">
-      <a class="btn btn--on-ink" href="https://t.me/yamizxcq">Написать в&nbsp;Telegram</a>
-      <a class="btn btn--on-ink-ghost" href="contact.html">Все контакты</a>
+    <h2 data-split>Начнём с&nbsp;разговора</h2>
+    <p class="lead rv">Пятнадцать минут, чтобы понять, есть ли&nbsp;смысл. Ничего не&nbsp;обязывает.</p>
+    <div class="actions rv" style="--i:2">
+      <a class="btn" href="https://t.me/yamizxcq">Написать в&nbsp;Telegram</a>
+      <a class="btn btn--ghost" href="contact.html">Все контакты</a>
     </div>
   </div>
 </section>
@@ -135,20 +131,17 @@
   <div class="wrap">
     <div class="foot__grid">
       <div>
-        <a class="brand" href="index.html"><svg role="img" aria-label="Valora" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5364.0 784.0"><g transform="translate(42.0 742.0) scale(1 -1)" fill="currentColor"><path transform="translate(0.0 0)" d="M330 158 100 700H5L330 -35L655 700H560Z"/><path transform="translate(960.0 0)" d="M147 210H517L487 290H177ZM330 542 450 260 458 240 560 0H655L330 735L5 0H100L204 246L212 264Z"/><path transform="translate(1920.0 0)" d="M80 700V0H440V80H165V700Z"/><path transform="translate(2670.0 0)" d="M130 350Q130 429 164.5 491.0Q199 553 259.0 589.0Q319 625 395 625Q472 625 531.5 589.0Q591 553 625.5 491.0Q660 429 660 350Q660 271 625.5 209.0Q591 147 531.5 111.0Q472 75 395 75Q319 75 259.0 111.0Q199 147 164.5 209.0Q130 271 130 350ZM40 350Q40 274 66.5 208.0Q93 142 141.0 93.5Q189 45 254.0 17.5Q319 -10 395 -10Q472 -10 536.5 17.5Q601 45 649.0 93.5Q697 142 723.5 208.0Q750 274 750 350Q750 427 723.5 492.5Q697 558 649.0 606.5Q601 655 536.5 682.5Q472 710 395 710Q319 710 254.0 682.5Q189 655 141.0 606.5Q93 558 66.5 492.5Q40 427 40 350Z"/><path transform="translate(3760.0 0)" d="M205 345 445 0H550L300 345ZM80 700V0H165V700ZM127 625H270Q315 625 349.5 609.0Q384 593 403.5 563.0Q423 533 423 490Q423 447 403.5 417.0Q384 387 349.5 371.0Q315 355 270 355H127V280H270Q338 280 391.5 305.5Q445 331 476.5 378.5Q508 426 508 490Q508 555 476.5 602.0Q445 649 391.5 674.5Q338 700 270 700H127Z"/><path transform="translate(4620.0 0)" d="M147 210H517L487 290H177ZM330 542 450 260 458 240 560 0H655L330 735L5 0H100L204 246L212 264Z"/></g></svg>
-</a>
-        <p class="foot__tag">Посадочная страница, лид-магнит и чат-бот под вашу нишу.</p>
+        <a class="brand" href="index.html"><span class="brand__mark">VALORA</span></a>
+        <p class="foot__tag">Маркетинговое агентство для малого бизнеса.</p>
       </div>
       <ul>
         <li><a href="index.html">Главная</a></li>
-        <li><a href="services.html">Услуги и цены</a></li>
+        <li><a href="services.html">Услуги</a></li>
         <li><a href="how.html">Как работаем</a></li>
-        <li><a href="works.html">Работы</a></li>
         <li><a href="contact.html">Контакты</a></li>
       </ul>
       <div class="foot__req">
         <p>ИП Андрюшин Андрей Вячеславович</p>
-        <p>Применяет налог на профессиональный доход</p>
         <p>ИНН 222112243596</p>
         <p>ОГРНИП 326220200125931</p>
         <p>г. Барнаул, Алтайский край</p>
@@ -163,6 +156,7 @@
     <a href="consent.html">Согласие на обработку данных</a>
     <span>© 2026 Valora</span>
     </div>
+    <div class="foot__mega" aria-hidden="true">VALORA</div>
   </div>
 </footer>
 <script src="script.js"></script>

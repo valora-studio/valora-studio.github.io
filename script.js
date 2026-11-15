@@ -1,285 +1,220 @@
-// Valora: меню на узком экране + движение по ходу страницы.
-// Без JS страница видна целиком: всё скрытое прячется только под html.js.
-(function () {
-  var root = document.documentElement;
-  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* Valora: ролики на canvas листаются прокруткой, слова появляются из-под маски, услуги раскрываются.
+   Без скрипта страница читается целиком (всё спрятанное прячется только под .js). */
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const DPR = Math.min(window.devicePixelRatio || 1, 2);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
-  // ---------- меню ----------
-  var top = document.querySelector('.top');
-  var burger = top && top.querySelector('.burger');
-  if (burger) {
-    burger.addEventListener('click', function () {
-      var open = top.classList.toggle('is-open');
-      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
-      burger.textContent = open ? 'Закрыть' : 'Меню';
-    });
+  // ---------- плавная прокрутка: подгружается после первого кадра, это приятность, не условие ----------
+  let lenis = null;
+  if (!reduce) {
+    const s = document.createElement('script');
+    s.src = 'https://unpkg.com/lenis@1.1.13/dist/lenis.min.js';
+    s.async = true;
+    s.onload = () => {
+      lenis = new Lenis({ lerp: 0.09, smoothWheel: true });
+      window.__lenis = lenis;
+      const raf = (t) => { lenis.raf(t); requestAnimationFrame(raf); };
+      requestAnimationFrame(raf);
+    };
+    document.head.appendChild(s);
   }
 
-  function clamp(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
-  function ease(t) { return 1 - Math.pow(1 - t, 3); }
-  function fmt(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
-  function $$(sel, ctx) { return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); }
-
-  // Прогресс элемента: 0 — верх элемента у нижней кромки окна (с отступом),
-  // 1 — низ элемента дошёл до `end` доли высоты окна.
-  function progress(el, start, end) {
-    var r = el.getBoundingClientRect(), vh = window.innerHeight;
-    var from = vh * start, to = vh * end - r.height;
-    return clamp((from - r.top) / (from - to));
-  }
-
-  // ---------- заголовок: разбить на слова ----------
-  $$('.hero h1, .doc h1').forEach(function (h) {
-    var words = h.textContent.trim().split(/[ \t\r\n]+/); // неразрывные пробелы не трогаем
-    h.innerHTML = words.map(function (w, i) {
-      return '<span class="w" style="--i:' + i + '"><span>' + w + '</span></span>';
-    }).join(' ');
-    h.classList.add('split');
-    h.setAttribute('aria-label', words.join(' '));
-  });
-
-  // линейки, которые прочерчиваются
-  $$('.rows, .faq, .steps, .compare, .price, .contacts').forEach(function (el) { el.classList.add('draw'); });
-
-
-  // ---------- переписка с ботом: проигрывается, когда блок в кадре ----------
-  $$('.demo').forEach(function (sec) {
-    var feed = sec.querySelector('.chat__feed'), card = sec.querySelector('.lead-card');
-    var replay = sec.querySelector('.chat__replay');
-    var items = Array.prototype.slice.call(feed.children);   // сценарий = статичная разметка
-    var timers = [];
-    function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
-    function down() { feed.scrollTop = feed.scrollHeight; }
-    function add(el) { feed.appendChild(el); down(); }
-
-    function play() {
-      timers.forEach(clearTimeout); timers = [];
-      feed.innerHTML = ''; card.classList.remove('is-in'); replay.hidden = true;
-      sec.classList.add('is-playing');
-      var t = 400;
-      items.forEach(function (el, i) {
-        var node = el.cloneNode(true);
-        if (el.classList.contains('msg--bot')) {
-          var typing = document.createElement('div');
-          typing.className = 'typing'; typing.innerHTML = '<i></i><i></i><i></i>';
-          later(function () { add(typing); }, t);
-          t += 550 + Math.min(750, el.textContent.length * 6);
-          later(function () { feed.removeChild(typing); add(node); }, t);
-          t += 500;
-        } else if (el.classList.contains('keys')) {
-          later(function () { add(node); }, t);
-          t += 950;
-          later(function () { var k = node.querySelector('[data-pick]'); if (k) k.classList.add('is-picked'); }, t);
-          t += 420;
-          later(function () { feed.removeChild(node); }, t);  // кнопки уходят, остаётся ответ
-        } else {                                               // ответ клиента
-          later(function () { add(node); }, t);
-          t += 550;
-        }
+  // ---------- слова: нарезаем заголовки на слова, чтобы поднимать их из-под маски ----------
+  function wrapWords(el, cls) {
+    const out = [];
+    const walk = (node) => {
+      [...node.childNodes].forEach((n) => {
+        if (n.nodeType === 3) {
+          const frag = document.createDocumentFragment();
+          n.textContent.split(/([ \t\r\n]+)/).forEach((part) => {
+            if (!part) return;
+            if (/^[ \t\r\n]+$/.test(part)) { frag.appendChild(document.createTextNode(' ')); return; }
+            const w = document.createElement('span');
+            w.className = cls;
+            const inner = document.createElement('span');
+            inner.textContent = part;
+            if (cls === 'w') w.appendChild(inner); else w.textContent = part;
+            frag.appendChild(w);
+            out.push(w);
+          });
+          n.replaceWith(frag);
+        } else if (n.nodeType === 1) walk(n);
       });
-      later(function () { card.classList.add('is-in'); }, t + 300);
-      later(function () { replay.hidden = false; }, t + 1400);
-    }
+    };
+    walk(el);
+    return out;
+  }
+  $$('[data-split]').forEach((el) => wrapWords(el, 'w').forEach((w, i) => w.firstChild.style.setProperty('--i', i)));
+  const manifest = $$('[data-words]').map((el) => ({ el, words: wrapWords(el, 'mw') }));
 
-    if (reduce) { down(); return; }          // без движения — переписка лежит целиком, видно конец
-    var started = false;
-    new IntersectionObserver(function (e, obs) {
-      if (e[0].isIntersecting && !started) { started = true; play(); obs.disconnect(); }
-    }, { threshold: .35 }).observe(sec.querySelector('.chat'));
-    replay.addEventListener('click', play);
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
+  }, { threshold: 0.15, rootMargin: '0px 0px -6% 0px' });
+  $$('.rv, [data-split]').forEach((el) => io.observe(el));
+  // заголовок героя виден сразу, ему не нужен триггер прокрутки
+  requestAnimationFrame(() => $$('.scrub [data-split]').forEach((el) => el.classList.add('is-in')));
+
+  // ---------- сцены ----------
+  const portrait = () => innerWidth / innerHeight < 1;
+  const scenes = $$('.scrub').map((el) => {
+    const canvas = el.querySelector('.scrub-canvas');
+    return {
+      el, canvas, ctx: canvas.getContext('2d'),
+      name: el.dataset.seq, bg: el.dataset.bg || '#000',
+      counts: { d: +el.dataset.d, m: +el.dataset.m },
+      variant: null, frames: [], last: -1, progress: 0,
+      layers: $$('[data-show]', el),
+    };
   });
 
-  if (reduce) {
-    // без движения — сразу конечное состояние каждой сцены
-    $$('.split, .draw').forEach(function (el) { el.classList.add('is-in'); });
-    document.body.classList.add('is-loaded');
-    $$('.dots').forEach(function (d) {
-      var first = d.getAttribute('data-keep') === 'first';
-      $$('i', d).forEach(function (el, i) {
-        if (first ? i === 0 : i < 9) return;
-        el.style.opacity = '.15'; el.style.background = 'transparent';
-      });
-      var cap = d.nextElementSibling && d.nextElementSibling.querySelector('b');
-      if (cap) cap.textContent = cap.getAttribute('data-to');
-    });
-    return;
+  // порядок загрузки: первый кадр, потом всё мельче шагом, чтобы листать можно было до конца загрузки
+  function loadOrder(n) {
+    const order = [], seen = new Set();
+    for (const stride of [n, 16, 8, 4, 2, 1]) for (let i = 0; i < n; i += stride) if (!seen.has(i)) { seen.add(i); order.push(i); }
+    if (!seen.has(n - 1)) order.push(n - 1);
+    return order;
   }
 
-  // первый экран — одна сцена при загрузке
-  requestAnimationFrame(function () {
-    requestAnimationFrame(function () {
-      document.body.classList.add('is-loaded');
-      $$('.split').forEach(function (h) { h.classList.add('is-in'); });
-    });
-  });
-
-  // ---------- появление по мере прокрутки ----------
-  var io = new IntersectionObserver(function (entries) {
-    entries.forEach(function (e) {
-      if (!e.isIntersecting) return;
-      e.target.classList.add('is-in');
-      io.unobserve(e.target);
-    });
-  }, { rootMargin: '0px 0px -12% 0px' });
-  $$('.draw').forEach(function (el) { io.observe(el); });
-
-
-  // ---------- схема на первом экране: люди идут из каналов к вам ----------
-  var FROM = { 'Авито': 'из Авито', 'Telegram': 'из Telegram', 'ВКонтакте': 'из ВКонтакте', 'Директ': 'из Директа',
-               'Рассылки': 'из рассылки', 'Сообщества': 'из сообщества', 'Партнёры': 'от партнёров', 'Видео': 'из видео' };
-  var DID = { 'Страница': 'Оставили заявку', 'Гид': 'Скачали гид', 'Бот': 'Написали боту' };
-  $$('.orbit').forEach(function (box) {
-    var svg = box.querySelector('svg'), layer = svg.querySelector('.o-dots');
-    var NS = 'http://www.w3.org/2000/svg';
-    var pulse = svg.querySelector('.o-pulse');
-    var count = box.querySelector('.o-count'), countT = box.querySelector('.o-count-t');
-    var cardB = box.querySelector('.o-card--b'), ev = box.querySelector('.o-event'), from = box.querySelector('.o-from');
-    var chans = $$('.o-ch', svg), hubs = {};
-    $$('.o-hub', svg).forEach(function (h) { hubs[h.getAttribute('data-hub')] = h; });
-    var routes = $$('.o-path', svg).map(function (p, i) {
-      var d = p.getAttribute('d'), tmp = document.createElementNS(NS, 'path');
-      tmp.setAttribute('d', d.split(' L')[0]);            // до узла — чтобы знать, где он на пути
-      return { el: p, len: p.getTotalLength(), hubAt: tmp.getTotalLength(),
-               ch: p.getAttribute('data-ch'), hub: p.getAttribute('data-hub'), node: chans[i] };
-    });
-    var dots = [], arrived = 0, visible = true, nextAt = 0, last = 0;
-
-    function flash(el, ms) { el.classList.add('is-hit'); setTimeout(function () { el.classList.remove('is-hit'); }, ms); }
-    function arrive(rt) {
-      arrived++;
-      var n10 = arrived % 10, n100 = arrived % 100;
-      countT.textContent = (n10 === 1 && n100 !== 11 ? 'контакт' :
-        n10 >= 2 && n10 <= 4 && (n100 < 12 || n100 > 14) ? 'контакта' : 'контактов') + ', пока вы читаете';
-      count.textContent = String(arrived);
-      pulse.classList.remove('go'); void pulse.getBBox(); pulse.classList.add('go');
-      ev.textContent = DID[rt.hub]; from.textContent = 'пришли ' + FROM[rt.ch];
-      cardB.classList.remove('is-new'); void cardB.offsetWidth; cardB.classList.add('is-new');
-    }
-    function spawn(now) {
-      var rt = routes[Math.floor(Math.random() * routes.length)];
-      var c = document.createElementNS(NS, 'circle');
-      c.setAttribute('r', '5'); c.setAttribute('class', 'o-dot');
-      layer.appendChild(c);
-      flash(rt.node, 500);
-      dots.push({ c: c, rt: rt, t0: now, dur: 2600 + Math.random() * 900, hit: false });
-    }
-    function inOut(t) { return t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
-
-    new IntersectionObserver(function (e) { visible = e[0].isIntersecting; }).observe(box);
-
-    requestAnimationFrame(function loop(now) {
-      if (visible && !document.hidden) {
-        if (!nextAt) nextAt = now + 1700;                  // первая точка — когда схема собралась
-        if (now >= nextAt) { spawn(now); nextAt = now + 700 + Math.random() * 900; }
-        dots = dots.filter(function (d) {
-          var k = (now - d.t0) / d.dur;
-          if (k >= 1) { layer.removeChild(d.c); arrive(d.rt); return false; }
-          var L = inOut(k) * d.rt.len, p = d.rt.el.getPointAtLength(L);
-          d.c.setAttribute('cx', p.x.toFixed(1)); d.c.setAttribute('cy', p.y.toFixed(1));
-          d.c.style.opacity = Math.min(1, k * 8).toFixed(2);
-          if (!d.hit && L >= d.rt.hubAt) { d.hit = true; flash(hubs[d.rt.hub], 450); }
-          return true;
-        });
-      } else {
-        // схему не видно — ставим на паузу: сдвигаем время у точек в пути
-        var dt = now - (last || now);
-        dots.forEach(function (d) { d.t0 += dt; });
-        if (nextAt) nextAt += dt;
+  function load(scene) {
+    const variant = portrait() ? 'm' : 'd';
+    if (scene.variant === variant) return;
+    scene.variant = variant;
+    const n = scene.counts[variant];
+    scene.frames = new Array(n).fill(null);
+    scene.last = -1;
+    const queue = loadOrder(n);
+    let active = 0;
+    const next = () => {
+      if (scene.variant !== variant) return;
+      while (active < 6 && queue.length) {
+        const i = queue.shift();
+        const img = new Image();
+        img.decoding = 'async';
+        active++;
+        img.onload = () => { scene.frames[i] = img; active--; if (scene.last === -1) draw(scene, true); next(); };
+        img.onerror = () => { active--; next(); };
+        img.src = `frames/${scene.name}/${variant}/${String(i + 1).padStart(4, '0')}.webp`;
       }
-      last = now;
-      requestAnimationFrame(loop);
+    };
+    next();
+  }
+
+  function nearestLoaded(frames, i) {
+    if (frames[i]) return i;
+    for (let d = 1; d < frames.length; d++) {
+      if (frames[i - d]) return i - d;
+      if (frames[i + d]) return i + d;
+    }
+    return -1;
+  }
+
+  function size(scene) {
+    const { canvas } = scene;
+    const w = Math.round(canvas.clientWidth * DPR), h = Math.round(canvas.clientHeight * DPR);
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; scene.last = -1; }
+  }
+
+  function draw(scene, force = false) {
+    const n = scene.frames.length;
+    if (!n) return;
+    const want = reduce ? n - 1 : Math.round(scene.progress * (n - 1));
+    const i = nearestLoaded(scene.frames, want);
+    if (i < 0 || (i === scene.last && !force)) return;
+    scene.last = i;
+    const img = scene.frames[i], { ctx, canvas } = scene;
+    const s = Math.max(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight);
+    const w = img.naturalWidth * s, h = img.naturalHeight * s;
+    ctx.fillStyle = scene.bg;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, (canvas.width - w) / 2, (canvas.height - h) / 2, w, h);
+  }
+
+  // слои поверх сцены: data-show="от до", доли прогресса сцены; от<=0 видно с самого начала, до>=1 остаётся до конца
+  const EDGE = 0.07;
+  function layers(scene) {
+    const p = reduce ? 1 : scene.progress;
+    for (const el of scene.layers) {
+      const [a, b] = el.dataset.show.split(' ').map(Number);
+      const tin = a <= 0 ? 1 : clamp((p - a) / EDGE);
+      const tout = b >= 1 ? 1 : clamp((b - p) / EDGE);
+      const t = reduce ? (a <= 0 ? 1 : 0) : Math.min(tin, tout);
+      el.style.opacity = t;
+      el.style.visibility = t <= 0 ? 'hidden' : 'visible';
+      el.style.translate = `0 ${(1 - t) * 26}px`;
+    }
+    const hint = scene.el.querySelector('.scroll-hint');
+    if (hint) hint.style.opacity = 1 - clamp(p / 0.06);
+  }
+
+  // ---------- шапка, полоса прогресса, манифест ----------
+  const header = document.querySelector('.top');
+  const bar = document.querySelector('.progress');
+  function tick() {
+    const vh = innerHeight;
+    for (const scene of scenes) {
+      const r = scene.el.getBoundingClientRect();
+      if (r.top < vh * 3 && r.bottom > -vh) load(scene);
+      if (r.bottom < 0 || r.top > vh) continue;
+      scene.progress = clamp(-r.top / (r.height - vh));
+      size(scene);
+      draw(scene);
+      layers(scene);
+    }
+    const y = scrollY;
+    if (header) header.classList.toggle('is-scrolled', y > 40);
+    if (bar) bar.style.transform = `scaleX(${clamp(y / Math.max(1, document.documentElement.scrollHeight - vh))})`;
+    for (const m of manifest) {
+      const r = m.el.getBoundingClientRect();
+      const p = clamp((vh * 0.82 - r.top) / (r.height + vh * 0.3));
+      const lit = Math.round(p * m.words.length);
+      m.words.forEach((w, i) => w.classList.toggle('on', i < lit));
+    }
+    requestAnimationFrame(tick);
+  }
+  scenes.forEach((s) => { if (s.el.getBoundingClientRect().top < innerHeight * 2) load(s); });
+  requestAnimationFrame(tick);
+  addEventListener('resize', () => scenes.forEach((s) => { s.last = -1; s.variant = null; }));
+
+  // ---------- услуги: на сенсорных экранах раскрываются по нажатию ----------
+  $$('.svci').forEach((li) => {
+    li.setAttribute('tabindex', '0');
+    li.addEventListener('click', () => {
+      const open = li.classList.contains('is-open');
+      $$('.svci.is-open').forEach((x) => x.classList.remove('is-open'));
+      if (!open) li.classList.add('is-open');
     });
+    li.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); li.click(); } });
   });
 
-  // ---------- сцены, привязанные к прокрутке ----------
-  var scenes = [];
+  // ---------- кнопки чуть тянутся к курсору ----------
+  if (!reduce && matchMedia('(hover: hover)').matches) {
+    $$('.btn').forEach((b) => {
+      b.addEventListener('pointermove', (e) => {
+        const r = b.getBoundingClientRect();
+        b.style.transform = `translate(${(e.clientX - r.left - r.width / 2) * 0.16}px, ${(e.clientY - r.top - r.height / 2) * 0.28}px)`;
+      });
+      b.addEventListener('pointerleave', () => { b.style.transform = ''; });
+    });
+  }
 
-  // 1. Десять человек: слева уходят девять, справа девять остаются.
-  $$('.compare').forEach(function (box) {
-    var groups = $$('.dots', box).map(function (d) {
-      var keep = d.getAttribute('data-keep');
-      var dots = $$('i', d).map(function (el, i) {
-        var stays = keep === 'first' ? i === 0 : i < 9;
-        // у каждого своя траектория ухода — чтобы не шли строем
-        var seed = Math.sin((i + 1) * (keep === 'first' ? 12.9 : 78.2)) * 43758.5;
-        seed = seed - Math.floor(seed);
-        return { el: el, stays: stays, dx: 18 + seed * 34, dy: (seed - .5) * 26, at: .12 + i * .055 };
-      });
-      var cap = d.nextElementSibling && d.nextElementSibling.querySelector('b');
-      return { dots: dots, cap: cap, to: cap ? +cap.getAttribute('data-to') : 0 };
-    });
-    scenes.push(function () {
-      var p = progress(box, .95, .7);
-      groups.forEach(function (g) {
-        var gone = 0;
-        g.dots.forEach(function (d) {
-          if (d.stays) return;
-          var k = ease(clamp((p - d.at) / .35));
-          if (k > .5) gone++;
-          d.el.style.transform = 'translate(' + (d.dx * k).toFixed(1) + 'px,' + (d.dy * k).toFixed(1) + 'px) scale(' + (1 - .35 * k).toFixed(3) + ')';
-          d.el.style.opacity = (1 - .85 * k).toFixed(3);
-          d.el.style.background = k > .5 ? 'transparent' : '';
-        });
-        if (g.cap) g.cap.textContent = String(10 - gone);
-      });
-    });
+  // ---------- меню на телефоне ----------
+  const burger = document.querySelector('.burger');
+  if (burger) burger.addEventListener('click', () => {
+    const open = header.classList.toggle('is-open');
+    burger.setAttribute('aria-expanded', open);
   });
 
-  // 3. Цены: строки по очереди, итог копится.
-  $$('.price').forEach(function (table) {
-    var rows = $$('tbody tr[data-sum]', table), total = table.querySelector('.price__total');
-    if (!rows.length || !total) return;
-    table.classList.add('is-scrub');
-    var shown = -1;
-    scenes.push(function () {
-      var p = progress(table, .92, .8);
-      var on = Math.min(rows.length, Math.floor(p * (rows.length + .999)));
-      if (on === shown) return;
-      shown = on;
-      var sum = 0;
-      rows.forEach(function (r, i) {
-        var yes = i < on;
-        r.classList.toggle('is-on', yes);
-        if (yes) sum += +r.getAttribute('data-sum');
-      });
-      total.textContent = fmt(sum) + ' ₽';
-    });
-  });
-
-  // 4. Шаги: линия пути тянется вдоль номеров.
-  $$('.steps').forEach(function (box) {
-    var steps = $$('.step', box);
-    var track = document.createElement('div');
-    track.className = 'steps__track';
-    track.innerHTML = '<i class="steps__fill"></i>';
-    box.insertBefore(track, box.firstChild);
-    scenes.push(function () {
-      var mid = window.innerHeight * .55;
-      var r = track.getBoundingClientRect();
-      var p = clamp((mid - r.top) / r.height);
-      track.style.setProperty('--p', p.toFixed(4));
-      steps.forEach(function (s) {
-        s.classList.toggle('is-on', s.getBoundingClientRect().top + 40 < mid);
-      });
-    });
-  });
-
-  // 5. Обложки гидов расходятся по высоте.
-  $$('.guides').forEach(function (box) {
-    var imgs = $$('img', box), amp = [-14, 22, -6];
-    scenes.push(function () {
-      var p = progress(box, 1, 0) - .5;
-      imgs.forEach(function (im, i) {
-        im.style.transform = 'translateY(' + (amp[i % 3] * p * 2).toFixed(1) + 'px)';
-      });
-    });
-  });
-
-  if (!scenes.length) return;
-  var ticking = false;
-  function frame() { ticking = false; scenes.forEach(function (f) { f(); }); }
-  function request() { if (!ticking) { ticking = true; requestAnimationFrame(frame); } }
-  window.addEventListener('scroll', request, { passive: true });
-  window.addEventListener('resize', request);
-  frame();
+  // ---------- якоря ----------
+  $$('a[href^="#"]').forEach((a) => a.addEventListener('click', (e) => {
+    const id = a.getAttribute('href');
+    if (id.length < 2) return;
+    const target = document.querySelector(id);
+    if (!target) return;
+    e.preventDefault();
+    if (lenis) lenis.scrollTo(target, { offset: -76, duration: 1.5 });
+    else target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+    header && header.classList.remove('is-open');
+  }));
 })();

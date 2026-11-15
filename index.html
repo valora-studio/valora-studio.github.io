@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Valora — посадочная страница, лид-магнит и чат-бот под вашу нишу</title>
-<meta name="description" content="Собираем посадочную страницу, лид-магнит и чат-бот под вашу нишу за 5–7 рабочих дней и передаём вам: страница на вашем домене, бот на вашем аккаунте.">
+<title>Valora — маркетинговое агентство: реклама, видео, сайты</title>
+<meta name="description" content="Valora — небольшое маркетинговое агентство: аудит, реклама, вертикальные видео, сайты, кабинеты на Wildberries. Считаем каждый рубль бюджета. Деньги и аккаунты остаются у вас.">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="ru_RU">
 <meta property="og:site_name" content="Valora">
-<meta property="og:title" content="Valora — посадочная страница, лид-магнит и чат-бот под вашу нишу">
-<meta property="og:description" content="Собираем посадочную страницу, лид-магнит и чат-бот под вашу нишу за 5–7 рабочих дней и передаём вам: страница на вашем домене, бот на вашем аккаунте.">
+<meta property="og:title" content="Valora — маркетинговое агентство: реклама, видео, сайты">
+<meta property="og:description" content="Valora — небольшое маркетинговое агентство: аудит, реклама, вертикальные видео, сайты, кабинеты на Wildberries. Считаем каждый рубль бюджета. Деньги и аккаунты остаются у вас.">
 <meta property="og:url" content="https://valora-studio.github.io/">
 <meta property="og:image" content="https://valora-studio.github.io/img/og.jpg">
 <meta property="og:image:width" content="1200">
@@ -19,187 +19,190 @@
 <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="img/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<link rel="preload" href="fonts/Jost-cyr-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Unbounded-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/GolosText-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" as="image" href="frames/hero/d/0001.webp" media="(min-aspect-ratio: 1/1)">
+<link rel="preload" as="image" href="frames/hero/m/0001.webp" media="(max-aspect-ratio: 99/100)">
 <script>document.documentElement.classList.add('js')</script>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+<div class="progress" aria-hidden="true"></div>
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="index.html"><svg role="img" aria-label="Valora" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5364.0 784.0"><g transform="translate(42.0 742.0) scale(1 -1)" fill="currentColor"><path transform="translate(0.0 0)" d="M330 158 100 700H5L330 -35L655 700H560Z"/><path transform="translate(960.0 0)" d="M147 210H517L487 290H177ZM330 542 450 260 458 240 560 0H655L330 735L5 0H100L204 246L212 264Z"/><path transform="translate(1920.0 0)" d="M80 700V0H440V80H165V700Z"/><path transform="translate(2670.0 0)" d="M130 350Q130 429 164.5 491.0Q199 553 259.0 589.0Q319 625 395 625Q472 625 531.5 589.0Q591 553 625.5 491.0Q660 429 660 350Q660 271 625.5 209.0Q591 147 531.5 111.0Q472 75 395 75Q319 75 259.0 111.0Q199 147 164.5 209.0Q130 271 130 350ZM40 350Q40 274 66.5 208.0Q93 142 141.0 93.5Q189 45 254.0 17.5Q319 -10 395 -10Q472 -10 536.5 17.5Q601 45 649.0 93.5Q697 142 723.5 208.0Q750 274 750 350Q750 427 723.5 492.5Q697 558 649.0 606.5Q601 655 536.5 682.5Q472 710 395 710Q319 710 254.0 682.5Q189 655 141.0 606.5Q93 558 66.5 492.5Q40 427 40 350Z"/><path transform="translate(3760.0 0)" d="M205 345 445 0H550L300 345ZM80 700V0H165V700ZM127 625H270Q315 625 349.5 609.0Q384 593 403.5 563.0Q423 533 423 490Q423 447 403.5 417.0Q384 387 349.5 371.0Q315 355 270 355H127V280H270Q338 280 391.5 305.5Q445 331 476.5 378.5Q508 426 508 490Q508 555 476.5 602.0Q445 649 391.5 674.5Q338 700 270 700H127Z"/><path transform="translate(4620.0 0)" d="M147 210H517L487 290H177ZM330 542 450 260 458 240 560 0H655L330 735L5 0H100L204 246L212 264Z"/></g></svg>
-</a>
+    <a class="brand" href="index.html" aria-label="Valora, на главную"><span class="brand__mark">VALORA</span></a>
     <button class="burger" type="button" aria-expanded="false" aria-controls="nav">Меню</button>
     <nav class="nav" id="nav">
       <a href="index.html" aria-current="page">Главная</a>
-      <a href="services.html">Услуги и цены</a>
+      <a href="services.html">Услуги</a>
       <a href="how.html">Как работаем</a>
-      <a href="works.html">Работы</a>
       <a href="contact.html">Контакты</a>
     </nav>
     <a class="btn" href="https://t.me/yamizxcq" target="_blank" rel="noopener">Написать в Telegram</a>
   </div>
 </header>
 <main>
-<section class="hero">
-  <div class="wrap hero__grid">
-    <div>
-      <h1>Посадочная страница, лид-магнит и&nbsp;чат-бот&nbsp;— под вашу нишу</h1>
-      <p class="lead">Собираем всё за&nbsp;5–7&nbsp;рабочих дней и&nbsp;передаём вам: страница на&nbsp;вашем домене, бот на&nbsp;вашем аккаунте, заявки приходят к&nbsp;вам напрямую. К&nbsp;ним&nbsp;— подборка каналов и&nbsp;рекомендации, как запустить трафик и&nbsp;поставить задачу подрядчику.</p>
-      <div class="actions">
-        <a class="btn" href="https://t.me/yamizxcq">Обсудить задачу</a>
-        <a class="btn btn--ghost" href="services.html">Услуги и&nbsp;цены</a>
+<section class="scrub" id="top" data-seq="hero" data-d="96" data-m="56" data-bg="#000">
+  <div class="scrub-stage">
+    <canvas class="scrub-canvas" aria-hidden="true"></canvas>
+    <div class="scrub-shade"></div>
+    <div class="scrub-layer hero-copy" data-show="0 0.34">
+      <div class="wrap">
+        <h1 data-split>Реклама, видео и&nbsp;сайты. Без тумана.</h1>
+        <p class="lead">Valora&nbsp;— небольшое агентство. Считаем каждый рубль бюджета и&nbsp;показываем цифры: расход, заявки, цена одной заявки. Рекламные деньги вы&nbsp;платите площадкам сами.</p>
+        <div class="actions">
+          <a class="btn" href="https://t.me/yamizxcq">Обсудить задачу</a>
+          <a class="btn btn--ghost" href="#uslugi">Услуги</a>
+        </div>
       </div>
     </div>
-    <div class="orbit">
-      <div class="orbit__stage">
-      <svg viewBox="30 0 580 610" role="img" aria-label="Схема: каналы трафика ведут на страницу, гид и бота, а от них заявки приходят к вам">
-        <circle class="o-ring" cx="320" cy="305" r="200"/>
-        <circle class="o-ring" cx="320" cy="305" r="100"/>
-        <path class="o-path" d="M396.5 120.2 Q381.2 157.2 320.0 205.0 L320 305" data-ch="Авито" data-hub="Страница"/>
-        <path class="o-path" d="M504.8 228.5 Q467.8 243.8 406.6 355.0 L320 305" data-ch="Telegram" data-hub="Бот"/>
-        <path class="o-path" d="M504.8 381.5 Q467.8 366.2 406.6 355.0 L320 305" data-ch="ВКонтакте" data-hub="Бот"/>
-        <path class="o-path" d="M396.5 489.8 Q381.2 452.8 406.6 355.0 L320 305" data-ch="Директ" data-hub="Бот"/>
-        <path class="o-path" d="M243.5 489.8 Q258.8 452.8 233.4 355.0 L320 305" data-ch="Рассылки" data-hub="Гид"/>
-        <path class="o-path" d="M135.2 381.5 Q172.2 366.2 233.4 355.0 L320 305" data-ch="Сообщества" data-hub="Гид"/>
-        <path class="o-path" d="M135.2 228.5 Q172.2 243.8 233.4 355.0 L320 305" data-ch="Партнёры" data-hub="Гид"/>
-        <path class="o-path" d="M243.5 120.2 Q258.8 157.2 320.0 205.0 L320 305" data-ch="Видео" data-hub="Страница"/>
-        <g class="o-dots"></g>
-        <g class="o-ch" style="--i:0"><circle cx="396.5" cy="120.2" r="5"/><text x="402.7" y="102.4" text-anchor="start">Авито</text></g>
-        <g class="o-ch" style="--i:1"><circle cx="504.8" cy="228.5" r="5"/><text x="519.6" y="227.3" text-anchor="start">Telegram</text></g>
-        <g class="o-ch" style="--i:2"><circle cx="504.8" cy="381.5" r="5"/><text x="519.6" y="392.7" text-anchor="start">ВКонтакте</text></g>
-        <g class="o-ch" style="--i:3"><circle cx="396.5" cy="489.8" r="5"/><text x="402.7" y="517.6" text-anchor="start">Директ</text></g>
-        <g class="o-ch" style="--i:4"><circle cx="243.5" cy="489.8" r="5"/><text x="237.3" y="517.6" text-anchor="end">Рассылки</text></g>
-        <g class="o-ch" style="--i:5"><circle cx="135.2" cy="381.5" r="5"/><text x="120.4" y="392.7" text-anchor="end">Сообщества</text></g>
-        <g class="o-ch" style="--i:6"><circle cx="135.2" cy="228.5" r="5"/><text x="120.4" y="227.3" text-anchor="end">Партнёры</text></g>
-        <g class="o-ch" style="--i:7"><circle cx="243.5" cy="120.2" r="5"/><text x="237.3" y="102.4" text-anchor="end">Видео</text></g>
-        <g class="o-hub" data-hub="Страница" style="--i:0"><circle cx="320.0" cy="205.0" r="40"/><text x="320.0" y="210.0" text-anchor="middle">Страница</text></g>
-        <g class="o-hub" data-hub="Бот" style="--i:1"><circle cx="406.6" cy="355.0" r="40"/><text x="406.6" y="360.0" text-anchor="middle">Бот</text></g>
-        <g class="o-hub" data-hub="Гид" style="--i:2"><circle cx="233.4" cy="355.0" r="40"/><text x="233.4" y="360.0" text-anchor="middle">Гид</text></g>
-        <g class="o-core">
-          <circle class="o-pulse" cx="320" cy="305" r="52"/>
-          <circle class="o-core__c" cx="320" cy="305" r="52"/>
-          <text x="320" y="306" text-anchor="middle">Заявки</text>
-          <text class="o-core__s" x="320" y="326" text-anchor="middle">вам</text>
-        </g>
-      </svg>
-      <div class="o-card o-card--a"><b class="o-count">Напрямую</b><span class="o-count-t">заявки приходят вам, минуя нас</span></div>
-      <div class="o-card o-card--b"><b class="o-event">Скачали гид</b><span class="o-from">пришли из&nbsp;Telegram</span></div>
-      </div>
-      <p class="o-cap">Схема, а&nbsp;не статистика: так трафик проходит через страницу, гид и&nbsp;бота&nbsp;— и&nbsp;приходит к&nbsp;вам.</p>
+    <div class="scrub-layer hero-sub" data-show="0.62 1">
+      <div class="wrap"><p>Небольшое агентство, в&nbsp;котором всё считают и&nbsp;ничего не&nbsp;прячут.</p></div>
     </div>
+    <div class="scrub-layer hero-mega" data-show="0.52 1" aria-hidden="true">
+      <div class="wrap"><b>VALORA</b></div>
+    </div>
+    <div class="scrub-layer scroll-hint">Листайте</div>
   </div>
 </section>
 
-<section class="band band--tone">
+<section class="manifest">
+  <div class="wrap">
+    <p data-words>Мы&nbsp;не обещаем чудес. Разбираем продукт, выбираем один-два канала, запускаем и&nbsp;считаем цену каждой заявки. Что окупается, растим. Остальное выключаем.</p>
+  </div>
+</section>
+
+<div class="marquee" aria-hidden="true"><div class="marquee__track"><span>Аудит и&nbsp;стратегия</span><span>Аналитика</span><span>Контекстная реклама</span><span>Таргетированная реклама</span><span>Telegram: рекламные посевы</span><span>Реклама у&nbsp;блогеров</span><span>Ведение кабинета WB</span><span>Вертикальные видео</span><span>Видео для рекламы</span><span>SMM и&nbsp;контент для соцсетей</span><span>Менеджеры по&nbsp;продажам</span><span>Посадочные страницы и&nbsp;лид-магниты</span><span>ИТ-продукты</span><span>Поисковая оптимизация (SEO)</span><span>Управление репутацией (ORM)</span><span>Нестандартные задачи</span><span>Аудит и&nbsp;стратегия</span><span>Аналитика</span><span>Контекстная реклама</span><span>Таргетированная реклама</span><span>Telegram: рекламные посевы</span><span>Реклама у&nbsp;блогеров</span><span>Ведение кабинета WB</span><span>Вертикальные видео</span><span>Видео для рекламы</span><span>SMM и&nbsp;контент для соцсетей</span><span>Менеджеры по&nbsp;продажам</span><span>Посадочные страницы и&nbsp;лид-магниты</span><span>ИТ-продукты</span><span>Поисковая оптимизация (SEO)</span><span>Управление репутацией (ORM)</span><span>Нестандартные задачи</span></div></div>
+
+<section class="band" id="uslugi">
   <div class="wrap">
     <div class="head">
-      <h2>Предложение в&nbsp;лоб теряет девять человек из&nbsp;десяти</h2>
-      <p class="lead">Трафик стоит одинаково, кто бы&nbsp;на него ни&nbsp;пришёл. Разница в&nbsp;том, сколько контактов вы&nbsp;из него забираете.</p>
+      <h2 data-split>С&nbsp;чем помогаем</h2>
+      <p class="lead rv">Берём любое направление отдельно или собираем план под вашу задачу. Наведите на&nbsp;строку, чтобы увидеть, что входит. Полный разбор есть на&nbsp;странице «Услуги».</p>
     </div>
-    <div class="compare">
-      <div>
-        <p class="label">Как делают обычно</p>
-        <div class="dots" data-keep="first" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-        <p class="dots__cap"><b data-to="1">10</b> из&nbsp;10 оставили контакт</p>
-        <blockquote>«Купите кухню на&nbsp;заказ со&nbsp;скидкой 30&nbsp;%»</blockquote>
-        <ul>
-          <li>Откликается только тот, кто готов купить прямо сейчас.</li>
-          <li>Остальные уходят и&nbsp;не оставляют о&nbsp;себе ничего.</li>
-          <li>Платить за&nbsp;них пришлось столько же.</li>
-        </ul>
-      </div>
-      <div>
-        <p class="label">Как делаем мы</p>
-        <div class="dots" data-keep="nine" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-        <p class="dots__cap"><b data-to="9">10</b> из&nbsp;10 оставили контакт</p>
-        <blockquote>«Три файла, которые сэкономят до&nbsp;100&nbsp;000&nbsp;₽ при заказе кухни»</blockquote>
-        <ul>
-          <li>Забрать файл не&nbsp;страшно&nbsp;— человек оставляет контакт.</li>
-          <li>В&nbsp;базу попадают и&nbsp;те, кто купит через месяц.</li>
-          <li>Дальше с&nbsp;ними работает бот: отвечает ночью, напоминает, передаёт вам.</li>
-        </ul>
+    <div class="svcgroups">
+    <div class="svcgroup rv" style="--i:0">
+      <h3 class="svcgroup__name">Стратегия и&nbsp;аналитика</h3>
+      <ul class="svcl">
+        <li class="svci"><div class="svci__name">Аудит и&nbsp;стратегия</div><div class="svci__desc"><p>Разбираем продукт, аудиторию, конкурентов и&nbsp;то, откуда клиенты приходят сейчас. На&nbsp;выходе документ: что делать, в&nbsp;каком порядке и&nbsp;какой бюджет нужен.</p></div></li>
+        <li class="svci"><div class="svci__name">Аналитика</div><div class="svci__desc"><p>Подключаем счётчики и&nbsp;цели, помечаем заявки по&nbsp;источникам и&nbsp;собираем отчёт, где видно расход, число заявок и&nbsp;цену одной заявки.</p></div></li>
+      </ul>
+    </div>
+    <div class="svcgroup rv" style="--i:1">
+      <h3 class="svcgroup__name">Платная реклама</h3>
+      <ul class="svcl">
+        <li class="svci"><div class="svci__name">Контекстная реклама</div><div class="svci__desc"><p>Яндекс Директ: запросы, объявления, ставки, минус-слова. Правим кампании по&nbsp;данным, а&nbsp;не по&nbsp;ощущениям.</p></div></li>
+        <li class="svci"><div class="svci__name">Таргетированная реклама</div><div class="svci__desc"><p>ВКонтакте и&nbsp;другие площадки: аудитории, креативы, проверка нескольких связок на&nbsp;небольшом бюджете.</p></div></li>
+        <li class="svci"><div class="svci__name">Telegram: рекламные посевы</div><div class="svci__desc"><p>Подбираем каналы, проверяем охваты и&nbsp;аудиторию, договариваемся о&nbsp;размещении и&nbsp;считаем результат. Размещение оплачиваете вы, напрямую каналу или бирже.</p></div></li>
+        <li class="svci"><div class="svci__name">Реклама у&nbsp;блогеров</div><div class="svci__desc"><p>Подбираем блогеров под вашу аудиторию, проверяем, что подписчики настоящие, пишем задание и&nbsp;ведём согласование. Блогеру платите вы.</p></div></li>
+      </ul>
+    </div>
+    <div class="svcgroup rv" style="--i:2">
+      <h3 class="svcgroup__name">Маркетплейсы</h3>
+      <ul class="svcl">
+        <li class="svci"><div class="svci__name">Ведение кабинета WB</div><div class="svci__desc"><p>Ведём ваш кабинет Wildberries: карточки товаров (названия, описания, инфографика), цены и&nbsp;акции, остатки и&nbsp;поставки, рекламу внутри WB, ответы на&nbsp;отзывы и&nbsp;вопросы покупателей. Доступ к&nbsp;кабинету остаётся у&nbsp;вас, рекламный бюджет внутри WB тоже платите вы.</p></div></li>
+      </ul>
+    </div>
+    <div class="svcgroup rv" style="--i:3">
+      <h3 class="svcgroup__name">Видео и&nbsp;контент</h3>
+      <ul class="svcl">
+        <li class="svci"><div class="svci__name">Вертикальные видео</div><div class="svci__desc"><p>Ролики для VK Клипов, YouTube Shorts, Telegram и&nbsp;Rutube: идея и&nbsp;сценарий, съёмка или работа с&nbsp;вашим материалом, монтаж, субтитры, обложки. Работаем пакетами роликов на&nbsp;месяц: экспертные, обзорные, рекламные.</p></div></li>
+        <li class="svci"><div class="svci__name">Видео для рекламы</div><div class="svci__desc"><p>Короткие вертикальные креативы под Директ, ВКонтакте и&nbsp;посевы: несколько вариантов одного предложения, чтобы по&nbsp;цифрам было видно, какой работает лучше.</p></div></li>
+        <li class="svci"><div class="svci__name">SMM и&nbsp;контент для соцсетей</div><div class="svci__desc"><p>Контент-план, тексты и&nbsp;оформление, публикации в&nbsp;Telegram, ВКонтакте и&nbsp;других соцсетях, ответы на&nbsp;комментарии. Публикуем после вашего согласования.</p></div></li>
+      </ul>
+    </div>
+    <div class="svcgroup rv" style="--i:3">
+      <h3 class="svcgroup__name">Продажи</h3>
+      <ul class="svcl">
+        <li class="svci"><div class="svci__name">Менеджеры по&nbsp;продажам</div><div class="svci__desc"><p>Подбираем менеджеров по&nbsp;продажам под вашу нишу и&nbsp;подключаем их&nbsp;к работе с&nbsp;заявками: первый контакт, переписка и&nbsp;звонки по&nbsp;вашему скрипту, учёт в&nbsp;вашей таблице или CRM, отчёт по&nbsp;воронке. Скрипт и&nbsp;условия согласуем с&nbsp;вами заранее.</p></div></li>
+      </ul>
+    </div>
+    <div class="svcgroup rv" style="--i:3">
+      <h3 class="svcgroup__name">Сайты и&nbsp;продукты</h3>
+      <ul class="svcl">
+        <li class="svci"><div class="svci__name">Посадочные страницы и&nbsp;лид-магниты</div><div class="svci__desc"><p>Одностраничный сайт с&nbsp;формой заявки и&nbsp;полезный материал в&nbsp;PDF, за&nbsp;которым оставляют контакт. Размещаем на&nbsp;вашем домене.</p></div></li>
+        <li class="svci"><div class="svci__name">ИТ-продукты</div><div class="svci__desc"><p>Telegram-боты, небольшие сайты, подключение форм к&nbsp;таблице или CRM под вашу задачу.</p></div></li>
+      </ul>
+    </div>
+    <div class="svcgroup rv" style="--i:3">
+      <h3 class="svcgroup__name">Органика и&nbsp;репутация</h3>
+      <ul class="svcl">
+        <li class="svci"><div class="svci__name">Поисковая оптимизация (SEO)</div><div class="svci__desc"><p>Аудит сайта, структура и&nbsp;тексты, технические правки, отслеживание позиций.</p></div></li>
+        <li class="svci"><div class="svci__name">Управление репутацией (ORM)</div><div class="svci__desc"><p>Следим за&nbsp;отзывами на&nbsp;картах и&nbsp;площадках, отвечаем на&nbsp;них, помогаем собирать новые у&nbsp;реальных клиентов. Заказные отзывы не&nbsp;пишем.</p></div></li>
+      </ul>
+    </div>
+    <div class="svcgroup rv" style="--i:3">
+      <h3 class="svcgroup__name">Специальные проекты</h3>
+      <ul class="svcl">
+        <li class="svci"><div class="svci__name">Нестандартные задачи</div><div class="svci__desc"><p>Запуск нового продукта, акции, конкурсы, коллаборации. Состав и&nbsp;формат обсуждаем отдельно.</p></div></li>
+      </ul>
+    </div>
+  </div>
+    <div class="actions rv"><a class="btn btn--ghost" href="services.html">Подробно об&nbsp;услугах</a></div>
+  </div>
+</section>
+
+<section class="scrub scrub--steps" id="kak" data-seq="order" data-d="80" data-m="48" data-bg="#000">
+  <div class="scrub-stage">
+    <canvas class="scrub-canvas" aria-hidden="true"></canvas>
+    <div class="scrub-shade"></div>
+    <div class="scrub-layer steps-head" data-show="0 1">
+      <div class="wrap">
+        <h2>Как идёт работа</h2>
+        <p class="lead">Бюджет в&nbsp;любом случае один и&nbsp;тот же. Разница в&nbsp;том, можно ли&nbsp;через месяц сказать, что сработало, а&nbsp;что нет.</p>
       </div>
     </div>
-    <p class="compare__result">Тот же&nbsp;трафик, но&nbsp;контактов из&nbsp;него в&nbsp;разы больше. Продаёте вы&nbsp;сами&nbsp;— в&nbsp;ваш разговор с&nbsp;клиентом мы&nbsp;не вмешиваемся.</p>
+    <div class="scrub-layer layer-mid step-layer" data-show="0 0.23">
+      <div class="wrap"><span class="stage__n">Шаг 1 из&nbsp;4</span><h3>Разбираем</h3><p>Продукт, аудитория, конкуренты и&nbsp;то, откуда клиенты приходят сейчас.</p></div>
+    </div>
+    <div class="scrub-layer layer-mid step-layer" data-show="0.23 0.48">
+      <div class="wrap"><span class="stage__n">Шаг 2 из&nbsp;4</span><h3>Выбираем</h3><p>Один-два канала, где ваша аудитория и&nbsp;ваш чек сходятся. Не&nbsp;все сразу.</p></div>
+    </div>
+    <div class="scrub-layer layer-mid step-layer" data-show="0.48 0.73">
+      <div class="wrap"><span class="stage__n">Шаг 3 из&nbsp;4</span><h3>Запускаем</h3><p>Страница, ролики и&nbsp;реклама на&nbsp;вашем аккаунте и&nbsp;за ваш бюджет.</p></div>
+    </div>
+    <div class="scrub-layer layer-mid step-layer" data-show="0.73 1">
+      <div class="wrap"><span class="stage__n">Шаг 4 из&nbsp;4</span><h3>Считаем</h3><p>Раз в&nbsp;две недели: расход, заявки и&nbsp;цена одной заявки. Что меняем и&nbsp;почему.</p></div>
+    </div>
   </div>
 </section>
 
 <section class="band">
   <div class="wrap">
     <div class="head">
-      <h2>Что вы&nbsp;получаете</h2>
+      <h2 data-split>Деньги и&nbsp;доступы остаются у&nbsp;вас</h2>
+      <p class="lead rv">Самое неприятное в&nbsp;работе с&nbsp;подрядчиком: бюджет и&nbsp;аккаунты оказываются у&nbsp;него. Здесь устроено наоборот.</p>
     </div>
     <div class="rows">
-      <div class="row">
-        <p class="label">Посадочная страница</p>
-        <div><h3>Одностраничный сайт с&nbsp;формой заявки</h3><p>Тексты под вашу нишу, ваш продукт и&nbsp;ваши цены. Страница живёт на&nbsp;вашем домене, заявки уходят в&nbsp;вашу таблицу или почту.</p></div>
+      <div class="row rv">
+        <p class="label">Рекламный бюджет</p>
+        <div><h3>Платите площадкам напрямую</h3><p>Яндексу и&nbsp;ВКонтакте со&nbsp;своего счёта. Мы&nbsp;эти деньги не&nbsp;принимаем и&nbsp;не распоряжаемся ими: в&nbsp;оплате агентства есть только наша работа.</p></div>
       </div>
-      <div class="row">
-        <p class="label">Лид-магнит</p>
-        <div><h3>Гид в&nbsp;PDF, за&nbsp;которым приходят</h3><p>Полезный материал, ради которого человек оставляет контакт, даже если покупать пока не&nbsp;готов. Пример&nbsp;— три гида в&nbsp;разделе «Работы».</p></div>
+      <div class="row rv">
+        <p class="label">Аккаунты</p>
+        <div><h3>Кабинеты, счётчики, домен оформлены на&nbsp;вас</h3><p>Работаем по&nbsp;выданному доступу. Если разойдёмся, всё остаётся у&nbsp;вас вместе с&nbsp;историей кампаний.</p></div>
       </div>
-      <div class="row">
-        <p class="label">Чат-бот</p>
-        <div><h3>Telegram-бот, который не&nbsp;спит</h3><p>Сразу отдаёт гид, отвечает на&nbsp;частые вопросы, собирает контакт и&nbsp;присылает его вам. Бот подключается к&nbsp;вашему аккаунту.</p></div>
-      </div>
-      <div class="row">
-        <p class="label">Рекомендации</p>
-        <div><h3>Где взять трафик и&nbsp;кому его заказать</h3><p>Два-три канала под вашу нишу и&nbsp;чек, как выбрать подрядчика и&nbsp;какую задачу ему поставить. Плюс чек-лист внедрения, чтобы ничего не&nbsp;потерялось.</p></div>
+      <div class="row rv">
+        <p class="label">Отчёты</p>
+        <div><h3>Раз в&nbsp;две недели, по&nbsp;данным кабинета</h3><p>Расход, число заявок и&nbsp;цена одной заявки. Доступ к&nbsp;кабинету у&nbsp;вас есть, цифры можно проверить самому.</p></div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="band band--tone demo">
-  <div class="wrap demo__grid">
-    <div>
-      <h2>Так это видит ваш клиент</h2>
-      <p class="lead">Человек пришёл с&nbsp;рекламы, ответил на&nbsp;пару вопросов кнопками&nbsp;— и&nbsp;через минуту у&nbsp;него в&nbsp;руках гид. А&nbsp;у вас в&nbsp;Telegram&nbsp;— заявка с&nbsp;его ответами: ещё до&nbsp;звонка понятно, с&nbsp;чем он&nbsp;придёт.</p>
-      <div class="rows demo__rows">
-        <div class="row"><p class="label">Сразу</p><div><p>Отвечает в&nbsp;ту же&nbsp;секунду&nbsp;— ночью и&nbsp;в выходные тоже. Человек не&nbsp;ждёт и&nbsp;не уходит к&nbsp;соседям.</p></div></div>
-        <div class="row"><p class="label">По&nbsp;делу</p><div><p>Спрашивает то, что вам нужно знать до&nbsp;разговора,&nbsp;— кнопками, без анкет.</p></div></div>
-        <div class="row"><p class="label">Вам</p><div><p>Контакт и&nbsp;ответы приходят в&nbsp;ваш Telegram. Через нас заявки не&nbsp;идут.</p></div></div>
-      </div>
-      <div class="actions"><a class="btn btn--ghost" href="works.html">Посмотреть работы</a></div>
-    </div>
-    <div class="demo__side">
-      <div class="chat" aria-label="Пример переписки клиента с ботом">
-        <div class="chat__head"><i>О</i><div><b>Опора</b><span>бот практики</span></div></div>
-        <div class="chat__feed">
-          <div class="msg msg--bot">Здравствуйте. Это бот практики «Опора». Задам пару коротких вопросов и&nbsp;отдам гид «Почему терапия не&nbsp;приносит облегчения».</div>
-          <div class="keys"><span data-pick>Хорошо, начнём</span></div>
-          <div class="msg msg--me">Хорошо, начнём</div>
-          <div class="msg msg--bot">С&nbsp;чем сейчас сложнее всего?</div>
-          <div class="keys"><span data-pick>Тревога, бессонница</span><span>Выгорание, апатия</span><span>Отношения, границы</span></div>
-          <div class="msg msg--me">Тревога, бессонница</div>
-          <div class="msg msg--bot">Как давно это длится?</div>
-          <div class="keys"><span>Несколько недель</span><span data-pick>Несколько месяцев</span><span>Больше года</span></div>
-          <div class="msg msg--me">Несколько месяцев</div>
-          <div class="msg msg--bot">Спасибо. Держите гид&nbsp;— там разобрано, почему так бывает и&nbsp;что с&nbsp;этим делать.</div>
-          <div class="msg msg--bot msg--file"><i>PDF</i><div><b>Почему терапия не&nbsp;приносит облегчения</b><span>PDF, 15 страниц</span></div></div>
-          <div class="msg msg--bot">Если захотите разобрать это вживую&nbsp;— запишитесь на&nbsp;встречу-знакомство.</div>
-          <div class="keys"><span data-pick>Записаться</span><span>Пока почитаю</span></div>
-          <div class="msg msg--me">Записаться</div>
+<section class="scrub scrub--cta" id="kontakt" data-seq="portal" data-d="72" data-m="44" data-bg="#000">
+  <div class="scrub-stage">
+    <canvas class="scrub-canvas" aria-hidden="true"></canvas>
+    <div class="scrub-shade"></div>
+    <div class="scrub-layer layer-mid cta-layer" data-show="0.5 1">
+      <div class="wrap">
+        <h2>Расскажите, чем вы&nbsp;занимаетесь</h2>
+        <p class="lead">За&nbsp;один разговор поймём, есть ли&nbsp;смысл в&nbsp;рекламе для вашей ниши и&nbsp;с чего начать. Если смысла нет, так и&nbsp;скажем.</p>
+        <div class="actions">
+          <a class="btn" href="https://t.me/yamizxcq">Написать в&nbsp;Telegram</a>
+          <a class="btn btn--ghost" href="contact.html">Все контакты</a>
         </div>
       </div>
-      <div class="lead-card">
-        <p class="label">Заявка в&nbsp;ваш Telegram</p>
-        <b>Тревога, бессонница&nbsp;— несколько месяцев</b>
-        <span>Скачал гид, хочет на&nbsp;встречу-знакомство</span>
-      </div>
-      <button class="chat__replay" type="button" hidden>Показать ещё раз</button>
-      <p class="demo__cap">Демо-бот для ниши «психология». Под вашу нишу&nbsp;— свои вопросы и&nbsp;свой гид.</p>
-    </div>
-  </div>
-</section>
-
-<section class="band band--ink cta">
-  <div class="wrap">
-    <h2>Расскажите, чем вы&nbsp;занимаетесь</h2>
-    <p class="lead">За&nbsp;один разговор поймём, подходит ли&nbsp;вашей нише такая связка, и&nbsp;назовём каналы, с&nbsp;которых стоит начать. Если не&nbsp;подходит&nbsp;— так и&nbsp;скажем.</p>
-    <div class="actions">
-      <a class="btn btn--on-ink" href="https://t.me/yamizxcq">Написать в&nbsp;Telegram</a>
-      <a class="btn btn--on-ink-ghost" href="contact.html">Все контакты</a>
     </div>
   </div>
 </section>
@@ -208,20 +211,17 @@
   <div class="wrap">
     <div class="foot__grid">
       <div>
-        <a class="brand" href="index.html"><svg role="img" aria-label="Valora" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5364.0 784.0"><g transform="translate(42.0 742.0) scale(1 -1)" fill="currentColor"><path transform="translate(0.0 0)" d="M330 158 100 700H5L330 -35L655 700H560Z"/><path transform="translate(960.0 0)" d="M147 210H517L487 290H177ZM330 542 450 260 458 240 560 0H655L330 735L5 0H100L204 246L212 264Z"/><path transform="translate(1920.0 0)" d="M80 700V0H440V80H165V700Z"/><path transform="translate(2670.0 0)" d="M130 350Q130 429 164.5 491.0Q199 553 259.0 589.0Q319 625 395 625Q472 625 531.5 589.0Q591 553 625.5 491.0Q660 429 660 350Q660 271 625.5 209.0Q591 147 531.5 111.0Q472 75 395 75Q319 75 259.0 111.0Q199 147 164.5 209.0Q130 271 130 350ZM40 350Q40 274 66.5 208.0Q93 142 141.0 93.5Q189 45 254.0 17.5Q319 -10 395 -10Q472 -10 536.5 17.5Q601 45 649.0 93.5Q697 142 723.5 208.0Q750 274 750 350Q750 427 723.5 492.5Q697 558 649.0 606.5Q601 655 536.5 682.5Q472 710 395 710Q319 710 254.0 682.5Q189 655 141.0 606.5Q93 558 66.5 492.5Q40 427 40 350Z"/><path transform="translate(3760.0 0)" d="M205 345 445 0H550L300 345ZM80 700V0H165V700ZM127 625H270Q315 625 349.5 609.0Q384 593 403.5 563.0Q423 533 423 490Q423 447 403.5 417.0Q384 387 349.5 371.0Q315 355 270 355H127V280H270Q338 280 391.5 305.5Q445 331 476.5 378.5Q508 426 508 490Q508 555 476.5 602.0Q445 649 391.5 674.5Q338 700 270 700H127Z"/><path transform="translate(4620.0 0)" d="M147 210H517L487 290H177ZM330 542 450 260 458 240 560 0H655L330 735L5 0H100L204 246L212 264Z"/></g></svg>
-</a>
-        <p class="foot__tag">Посадочная страница, лид-магнит и чат-бот под вашу нишу.</p>
+        <a class="brand" href="index.html"><span class="brand__mark">VALORA</span></a>
+        <p class="foot__tag">Маркетинговое агентство для малого бизнеса.</p>
       </div>
       <ul>
         <li><a href="index.html">Главная</a></li>
-        <li><a href="services.html">Услуги и цены</a></li>
+        <li><a href="services.html">Услуги</a></li>
         <li><a href="how.html">Как работаем</a></li>
-        <li><a href="works.html">Работы</a></li>
         <li><a href="contact.html">Контакты</a></li>
       </ul>
       <div class="foot__req">
         <p>ИП Андрюшин Андрей Вячеславович</p>
-        <p>Применяет налог на профессиональный доход</p>
         <p>ИНН 222112243596</p>
         <p>ОГРНИП 326220200125931</p>
         <p>г. Барнаул, Алтайский край</p>
@@ -236,6 +236,7 @@
     <a href="consent.html">Согласие на обработку данных</a>
     <span>© 2026 Valora</span>
     </div>
+    <div class="foot__mega" aria-hidden="true">VALORA</div>
   </div>
 </footer>
 <script src="script.js"></script>
